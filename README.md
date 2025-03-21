@@ -7,18 +7,17 @@ Familiarize yourself with the data. Load and visualize the input data for a few 
 
 **2.** Familiarize yourself with the provided script. Run and time the reference implementation for asmall subset of floorplans (e.g., 10 - 20). How long do you estimate it would take to process all the floorplans? Perform the timing as a batch job so you get relieable results.
 
-**Note** Time python gives
+Time python gives the following time for 1 sample (Building_id 10000)
 
 | Time type | Duration |
 | -------- | -------  |
-| real     | 0m7.994s |
-| user     | 0m7.859s |
-| sys      | 0m0.044s |
+| real     | 0m0.036s |
+| user     | 0m0.028s |
+| sys      | 0m0.005s |
 
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+Using ls /dtu/projects/02613_2025/data/modified_swiss_dwellings/ | wc -l there is 9143 different building id's
+
+The esitmated time to process all floor plans is: 329,148s
 
 
 **3.** Visualize the simulation results for a few floorplans.
