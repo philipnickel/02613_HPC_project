@@ -4,6 +4,11 @@
 **1.** 
 Familiarize yourself with the data. Load and visualize the input data for a few floorplans using aseperate Python script, Jupyter notebook or your preferred tool.
 
+Results for building_id 10000:
+
+| building_id | mean_temp       | std_temp       | pct_above_18       | pct_below_15       |
+|-------------|-----------------|----------------|--------------------|--------------------|
+| 10000       | 14.01233878811275 | 6.367431059312565 | 30.941014791508444 | 55.542295034537624 |
 
 **2.** Familiarize yourself with the provided script. Run and time the reference implementation for asmall subset of floorplans (e.g., 10 - 20). How long do you estimate it would take to process all the floorplans? Perform the timing as a batch job so you get relieable results.
 
