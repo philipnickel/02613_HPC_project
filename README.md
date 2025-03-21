@@ -9,12 +9,16 @@ Familiarize yourself with the data. Load and visualize the input data for a few 
 
 **Note** Time python gives
 
-| -------- | ------- |
+| Time type | Duration |
+| -------- | -------  |
 | real     | 0m7.994s |
 | user     | 0m7.859s |
 | sys      | 0m0.044s |
 
-
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
 
 
 **3.** Visualize the simulation results for a few floorplans.
