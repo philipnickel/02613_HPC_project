@@ -5,7 +5,15 @@
 Familiarize yourself with the data. Load and visualize the input data for a few floorplans using aseperate Python script, Jupyter notebook or your preferred tool.
 
 
-**2.** Familiarize yourself with the provided script. Run and time the reference implementation for asmall subset of floorplans (e.g., 10 - 20). How long do you estimate it would take to process allthe floorplans? Perform the timing as a batch job so you get relieable results.
+**2.** Familiarize yourself with the provided script. Run and time the reference implementation for asmall subset of floorplans (e.g., 10 - 20). How long do you estimate it would take to process all the floorplans? Perform the timing as a batch job so you get relieable results.
+
+**Note** Time python gives 
+
+| real    | 0m7.994s|
+| user    |0m7.859s
+| sys     |0m0.044s|
+
+
 
 
 **3.** Visualize the simulation results for a few floorplans.
