@@ -11,19 +11,19 @@ Time python gives the following time for 1 sample (Building_id 10000)
 
 | Time type | Duration |
 | -------- | -------  |
-| real     | 0m0.036s |
-| user     | 0m0.028s |
-| sys      | 0m0.005s |
+| real     | 0m5.690s |
+| user     | 0m5.641s |
+| sys      | 0m0.031s |
 
 Using ls /dtu/projects/02613_2025/data/modified_swiss_dwellings/ | wc -l there is 9143 different building id's
 
-The esitmated time to process all floor plans is: 329,148s
+The esitmated time to process all floor plans is: 14h27m3.6s
 
 
 **3.** Visualize the simulation results for a few floorplans.
 
 
-**4.** Profile the referencejacobifunction using kernprof. Explain the different parts of the functionand how much time each part takes.
+**4.** Profile the reference jacobi function using kernprof. Explain the different parts of the function and how much time each part takes.
 
 
 **5.** Make a new Python program where you parallelize the computations over the floorplans. Usestatic scheduling such that each worker is assigned the same amount of floorplans to process. You should use no more than 100 floorplans for your timing experiments. Again, use a batch job to ensure consistent results.

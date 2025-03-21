@@ -13,4 +13,4 @@
 conda activate HPC
 
 #Run Python script
-time python orginal_script.py
+kernprof -b Python_scripts/orginal_script.py
