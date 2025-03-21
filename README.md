@@ -25,6 +25,19 @@ The esitmated time to process all floor plans is: 14h27m3.6s
 
 **4.** Profile the reference jacobi function using kernprof. Explain the different parts of the function and how much time each part takes.
 
+| Line # | Hits  | Time (ms) | Per Hit (ms) | % Time | Line Contents                                                                 |
+|--------|-------|-----------|--------------|--------|-------------------------------------------------------------------------------|
+| 6      |       |           |              |        | @profile                                                                      |
+| 7      |       |           |              |        | def jacobi(u, interior_mask, max_iter, atol=1e-6):                            |
+| 8      | 1     | 1589.6    | 1589.6       | 0.0    | u = np.copy(u)                                                                |
+| 10     | 3602  | 1583.7    | 0.4          | 0.0    | for i in range(max_iter):                                                     |
+| 12     | 3602  | 3121563.2 | 866.6        | 59.8   | u_new = 0.25 * (u[1:-1, :-2] + u[1:-1, 2:] + u[:-2, 1:-1] + u[2:, 1:-1])      |
+| 13     | 3602  | 567247.1  | 157.5        | 10.9   | u_new_interior = u_new[interior_mask]                                         |
+| 14     | 3602  | 913969.2  | 253.7        | 17.5   | delta = np.abs(u[1:-1, 1:-1][interior_mask] - u_new_interior).max()           |
+| 15     | 3602  | 609825.0  | 169.3        | 11.7   | u[1:-1, 1:-1][interior_mask] = u_new_interior                                 |
+| 17     | 3602  | 3200.8    | 0.9          | 0.1    | if delta < atol:                                                              |
+| 18     | 1     | 0.5       | 0.5          | 0.0    | break                                                                         |
+| 19     | 1     | 0.2       | 0.2          | 0.0    | return u                                                                      |
 
 **5.** Make a new Python program where you parallelize the computations over the floorplans. Usestatic scheduling such that each worker is assigned the same amount of floorplans to process. You should use no more than 100 floorplans for your timing experiments. Again, use a batch job to ensure consistent results.
 

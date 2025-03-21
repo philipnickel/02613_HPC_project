@@ -10,7 +10,8 @@
 #BSUB -e python_%J.err
 
 # Initialize Python environment
-conda activate HPC
+source /dtu/projects/02613_2025/conda/conda_init.sh
+conda activate 02613
 
 #Run Python script
-kernprof -b Python_scripts/orginal_script.py
+kernprof -b Python_scripts/original_script.py

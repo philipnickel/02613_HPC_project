@@ -3,7 +3,7 @@ import sys
 
 import numpy as np
 
-
+@profile
 def jacobi(u, interior_mask, max_iter, atol=1e-6):
     u = np.copy(u)
 
