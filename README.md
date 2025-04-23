@@ -49,6 +49,8 @@ The esitmated time to process all floor plans is: 14h27m3.6s
 - a)   Measure the speed-up as more workers are added. Plot your speed-ups. 
 
 - b) Estimate your parallel fraction according to Amdahl's law. How much (roughly) is paral-lelized?
+We take speed up time for p=2
+\[ \frac{1-\frac{1}{1.9363522}}{1-\frac{1}{2}}\approx 0.9668]\
 
 - c) What is your theoretical maximum speed-up according to Amdahl's law? How much of thatdid you achieve? How many cores did that take?
 

@@ -177,3 +177,7 @@ cython_debug/
 .pypirc
 
 plots/
+
+# Ignore output files
+*.pdf
+*.npy

@@ -8,7 +8,7 @@ from os.path import join
 
 def main():
     # Directory that contains your NPY files and building_ids.txt
-    LOAD_DIR = 'simulated_data/'
+    LOAD_DIR = 'parallized_simulated_data/'
 
     # Read all building IDs from file
     building_ids = [os.path.splitext(filename)[0] for filename in os.listdir(LOAD_DIR) if os.path.isfile(os.path.join(LOAD_DIR, filename))]

@@ -23,7 +23,7 @@ def main():
     # Prepare an output directory to store the images
     out_dir = "raw_plots"
     os.makedirs(out_dir, exist_ok=True)
-
+    print(LOAD_DIR)
     # For each building ID up to N
     for bid in building_ids[:N]:
         domain_path = join(LOAD_DIR, f"{bid}_domain.npy")
