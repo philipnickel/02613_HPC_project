@@ -54,6 +54,7 @@ def compute_u_new_parallel(u, u_new):
 @njit
 def numba_helper(u, ys, xs, max_iter, atol=1e-6):
     u = u.copy()
+    print(ys)
     
     for _ in range(max_iter):
         #if parallel:
@@ -64,6 +65,8 @@ def numba_helper(u, ys, xs, max_iter, atol=1e-6):
 
         delta = 0.0
         for k in range(len(ys)):
+        #for k in range(len(ys) - 1, -1, -1):  # Reverse iteration here
+
             i = ys[k]
             j = xs[k]
             diff = abs(u[i + 1, j + 1] - u_new[i, j])

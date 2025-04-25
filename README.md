@@ -66,7 +66,7 @@ We take speed up time for p=2
 
 **7.** Implement another solution where you rewrite the jacobi function using Numba JIT on the CPU.
 
-- a)    Run and time the new solution for a small subset of floorplans. How does the performancecompare to the reference?
+- a)    Run and time the new solution for a small subset of floorplans. How does the performance compare to the reference?
 
 - b)    Explain your function. How did you ensure your access pattern works well with the CPU cache?
 

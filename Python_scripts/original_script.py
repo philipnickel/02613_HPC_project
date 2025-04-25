@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     all_u = np.empty_like(all_u0)
     for i, (u0, interior_mask) in enumerate(zip(all_u0, all_interior_mask)):
-        u = jacobi_numba(u0, interior_mask, MAX_ITER, ABS_TOL, parallel=True)
+        u = jacobi_numba(u0, interior_mask, MAX_ITER, ABS_TOL, parallel=False)
         all_u[i] = u
     
     out_save_dir = "simulated_data"
