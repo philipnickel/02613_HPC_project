@@ -34,7 +34,7 @@ def jacobi_optimized(u, interior_mask, max_iter, atol=1e-6):
     return u
 
 @jit(nopython=True)
-def jacobi_cuda(u, interior_mask, max_iter, atol=1e-6):
+def jacobi_numba(u, interior_mask, max_iter, atol=1e-6):
     #u = np.copy(u)
 
     for i in range(max_iter):
