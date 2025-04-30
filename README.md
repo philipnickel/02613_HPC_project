@@ -175,8 +175,7 @@ Almost double speed up.
 I now takes approximately 8h43m
 
 - c)    Was anything surprising about the performance?
-
-Initially running on an interactive gpu (voltash), gave worse results approx. 17s for computing only building 1000. But computing for 10 buildings was almost yeilded almost a 2x speed-up compared to the refrence.
+Computing for 10 buildings was almost yeilded almost a 2x speed-up compared to the refrence.
 
 
 **10.** Profile the CuPy solution using the nsys profiler. What is the main issue regarding performance? (Hint: see exercises from week 10) Try to fix it.

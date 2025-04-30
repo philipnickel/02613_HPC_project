@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # Run jacobi iterations for each floor plan
     MAX_ITER = 20_000
-    ABS_TOL = 1e-4
+    ABS_TOL = 1e-2
 
     all_u = cp.empty_like(all_u0)
     for i, (u0, interior_mask) in enumerate(zip(all_u0, all_interior_mask)):

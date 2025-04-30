@@ -164,18 +164,19 @@ def compute_residual(u, interior_mask):
     return np.linalg.norm((lap[interior_mask]))
 
 
-def jacobi_cp(u, interior_mask, max_iter, atol=1e-6):
+def jacobi_cp(u, interior_mask, max_iter, atol=1e-2):
     u = cp.copy(u)
     u = cp.array(u)
     interior_mask = cp.array(interior_mask)
+    interval = 500
     for i in range(max_iter):
         # Compute average of left, right, up and down neighbors, see eq. (1)
         u_new = 0.25 * (u[1:-1, :-2] + u[1:-1, 2:] + u[:-2, 1:-1] + u[2:, 1:-1])
         u_new_interior = u_new[interior_mask]
-        delta = cp.abs(u[1:-1, 1:-1][interior_mask] - u_new_interior).max()
         u[1:-1, 1:-1][interior_mask] = u_new_interior
+        if (i + 1) % interval == 0:
+                residual = compute_residual(u, interior_mask)
 
-        if delta < atol:
-            break
-    return u
+                if residual < atol:
+                    return u
 

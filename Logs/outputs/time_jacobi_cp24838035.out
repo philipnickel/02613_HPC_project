@@ -1,0 +1,82 @@
+Converged in 4000 iterations (residual=7.43e-03)
+Converged in 6250 iterations (residual=9.72e-03)
+Converged in 9750 iterations (residual=8.80e-03)
+Converged in 9750 iterations (residual=8.63e-03)
+Converged in 3750 iterations (residual=9.65e-03)
+Converged in 5750 iterations (residual=7.54e-03)
+Converged in 1750 iterations (residual=5.53e-03)
+Converged in 5000 iterations (residual=9.83e-03)
+Converged in 1750 iterations (residual=6.90e-03)
+Converged in 7750 iterations (residual=9.26e-03)
+building_id, mean_temp, std_temp, pct_above_18, pct_below_15
+10000, 14.014658412647758, 6.367536721563129, 30.95367256157101, 55.50612997721601
+10009, 11.005747382530682, 5.810160386516744, 16.68006834857775, 74.94723087747512
+10014, 14.75496092921104, 7.0314280404665706, 38.28606909468456, 52.76765538160868
+10019, 14.747160657525756, 7.023552374480675, 38.18374177271849, 52.89366334014913
+10029, 10.618099683633163, 6.315784327722557, 18.25563221896085, 74.51301795448481
+10031, 12.515378474048134, 6.276818029473066, 24.06829095837139, 66.3538873994638
+10051, 13.29003586706852, 5.9990292003941175, 25.97693550756574, 62.85441457323344
+10053, 11.370251703720488, 6.2601770104867995, 19.953279266572636, 72.40391396332863
+10056, 14.220883669230926, 6.179429594330867, 31.767059586893048, 57.05634259759922
+10064, 12.725263050725506, 6.9642182276832045, 28.830274560149387, 62.71311722541554
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 24838035: <time_jacobi_cp> in cluster <dcc> Done
+
+Job <time_jacobi_cp> was submitted from host <n-62-20-1> by user <s214786> in cluster <dcc> at Wed Apr 30 14:43:29 2025
+Job was executed on host(s) <4*n-62-12-22>, in queue <c02613>, as user <s214786> in cluster <dcc> at Wed Apr 30 14:43:30 2025
+</zhome/e5/d/167772> was used as the home directory.
+</zhome/e5/d/167772/Desktop/02613/02613_HPC_project> was used as the working directory.
+Started at Wed Apr 30 14:43:30 2025
+Terminated at Wed Apr 30 14:44:01 2025
+Results reported at Wed Apr 30 14:44:01 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J time_jacobi_cp
+#BSUB -q c02613
+#BSUB -R "select[model == XeonGold6226R]"
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -R "rusage[mem=2GB]"
+#BSUB -B 
+#BSUB -R "span[hosts=1]"
+#BSUB -n 4
+#BSUB -o Logs/outputs/time_jacobi_cp%J.out
+#BSUB -e Logs/errors/time_jacobi__cp%J.err
+
+# Initialize Python environment
+source /dtu/projects/02613_2025/conda/conda_init.sh
+conda activate 02613
+
+#Run Python script
+time python Python_scripts/cupy_script.py 10
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   27.77 sec.
+    Max Memory :                                 134 MB
+    Average Memory :                             134.00 MB
+    Total Requested Memory :                     8192.00 MB
+    Delta Memory :                               8058.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                7
+    Run time :                                   32 sec.
+    Turnaround time :                            32 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <Logs/errors/time_jacobi__cp24838035.err> for stderr output of this job.
+

@@ -15,4 +15,4 @@ source /dtu/projects/02613_2025/conda/conda_init.sh
 conda activate 02613
 
 #Run Python script
-time python Python_scripts/cupy_script.py 10
+time python Python_scripts/cupy_script.py 
