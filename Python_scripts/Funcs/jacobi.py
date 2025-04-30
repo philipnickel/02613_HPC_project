@@ -7,9 +7,9 @@ import cupy as cp
 
 
 
-def jacobi(u, interior_mask, max_iter, atol=1e-6, print_residual=False):
+def jacobi(u, interior_mask, max_iter, atol=1e-6, print_residual=False, save_residuals=False, use_alg_residual=False):
     u = np.copy(u)
-
+    residuals = []
     for i in range(max_iter):
         # Compute average of left, right, up and down neighbors, see eq. (1)
         u_new = 0.25 * (u[1:-1, :-2] + u[1:-1, 2:] + u[:-2, 1:-1] + u[2:, 1:-1])
@@ -17,13 +17,21 @@ def jacobi(u, interior_mask, max_iter, atol=1e-6, print_residual=False):
         delta = np.abs(u[1:-1, 1:-1][interior_mask] - u_new_interior).max()
         u[1:-1, 1:-1][interior_mask] = u_new_interior
 
-        if delta < atol:
-          if print_residual:
-            print(f"Algebraic Residual: {compute_residual(u, interior_mask)})")
-            print(f"Converged in {i} iterations")
-          break
+        if use_alg_residual and i % 100 == 0:
+            residuals.append(compute_residual(u, interior_mask))
 
-    return u
+        if not use_alg_residual:
+            if delta < atol:
+                if print_residual:
+                    print(f"Algebraic Residual: {compute_residual(u, interior_mask)})")
+                    print(f"Converged in {i} iterations")
+                return u, residuals if save_residuals else u
+        elif use_alg_residual:
+            if compute_residual(u, interior_mask) < atol:
+                if print_residual:
+                    print(f"Algebraic Residual: {compute_residual(u, interior_mask)})")
+                    print(f"Converged in {i} iterations")
+                return u, residuals if save_residuals else u
 
 
 
@@ -158,10 +166,11 @@ def jacobi_cuda(u_host, interior_mask, max_iter, atol=1e-6, interval=10):
     return u.copy_to_host()
   
 def compute_residual(u, interior_mask):
+    xp = cp.get_array_module(u)
     lap = (
         u[:-2, 1:-1] + u[2:, 1:-1] + u[1:-1, :-2] + u[1:-1, 2:] - 4 * u[1:-1, 1:-1]
     )
-    return np.linalg.norm((lap[interior_mask]))
+    return xp.linalg.norm((lap[interior_mask]))
 
 
 def jacobi_cp(u, interior_mask, max_iter, atol=1e-2):
