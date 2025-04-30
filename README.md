@@ -180,7 +180,7 @@ Initially running on an interactive gpu (voltash), gave worse results approx. 17
 
 
 **10.** Profile the CuPy solution using the nsys profiler. What is the main issue regarding performance? (Hint: see exercises from week 10) Try to fix it.
-The main issue regarding performance is the device to host transfer, which is 95% of time spent.
+The main issue regarding performance is the device to host transfer, which is 98% of time spent.
 
 **11. (Optional)** Improve the performance of one or more of your solutions further.  For example, parallelize your CPU JIT solution. Or use job arrays to parallelize a solution over multiple jobs. How fast can you get?
 
