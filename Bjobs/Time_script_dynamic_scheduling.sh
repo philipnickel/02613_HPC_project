@@ -6,8 +6,8 @@
 #BSUB -R "rusage[mem=1GB]"
 #BSUB -R "span[hosts=1]"
 #BSUB -n 16
-#BSUB -o Experiments/Dynamic_parallel/python_cores16_parallized_%J.out
-#BSUB -e Experiments/Dynamic_parallel/python_cores16_parallized_%J.err
+#BSUB -o Experiments/Dynamic_parallelized/python_cores16_parallized_%J.out
+#BSUB -e Experiments/Dynamic_parallelized/python_cores16_parallized_%J.err
 
 # Initialize Python environment
 source /dtu/projects/02613_2025/conda/conda_init.sh

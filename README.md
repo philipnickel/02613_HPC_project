@@ -55,9 +55,9 @@ The esitmated time to process all floor plans is approximately 19h1m
 
 - a)   Measure the speed-up as more workers are added. Plot your speed-ups.
 
-<div style="text-align: center;">
-  <img src="speedup_static.png" alt="Speed-up times" width="400">
-</div>
+  <div style="text-align: center;">
+    <img src="speedup_static.png" alt="Speed-up times" width="400">
+  </div>
 
 - b) Estimate your parallel fraction according to Amdahl's law. How much (roughly) is paral-lelized?
 
