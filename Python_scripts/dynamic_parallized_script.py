@@ -38,27 +38,13 @@ if __name__ == '__main__':
     all_u = np.empty_like(all_u0)
 
     max_workers = int(os.environ.get("LSB_DJOB_NUMPROC", os.cpu_count()))
-
-    indices = np.arange(len(all_u0))
-    chunks  = np.array_split(indices, max_workers)
-
-    def batch(idxs):
-        results = []
-        for i in idxs:
-            u0   = all_u0[i]
-            mask = all_interior_mask[i]
-            results.append(jacobi(u0, mask, MAX_ITER, ABS_TOL))
-        return results
-
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(batch, chunk) for chunk in chunks]
-        
+        futures = [executor.submit(jacobi, u0, mask, MAX_ITER, ABS_TOL)  
+           for u0, mask in zip(all_u0, all_interior_mask)]
+
         wait(futures)
 
-    all_u = []
-    for fut in futures:
-        all_u.extend(fut.result())
-    all_u = np.array(all_u)
+        all_u = np.array([future.result() for future in futures])
     
     out_save_dir = "parallized_simulated_data"
     os.makedirs(out_save_dir, exist_ok=True)
