@@ -35,7 +35,7 @@ def main():
         plt.imshow(data, cmap='magma', vmin=0, vmax=25)
         plt.title(f"Building {bid}: Simulated")
         plt.colorbar()
-        out_path_domain = join(out_dir, f"{bid}_simulated.pdf")
+        out_path_domain = join(out_dir, f"{bid}_simulated.png")
         plt.savefig(out_path_domain, dpi=150)
         plt.close(fig1)  # Close to free memory
 
