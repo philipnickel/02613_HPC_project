@@ -12,7 +12,7 @@ count_above_18 = (data['pct_above_18'] >= 50).sum()
 count_below_15 = (data['pct_below_15'] >= 50).sum()
 
 output_path = "average_mean_temp.png"
-plt.figure(figsize=(8, 4))
+plt.figure(figsize=(8, 5))
 plt.hist(data['mean_temp'], bins=20, edgecolor='black')
 plt.title('Distribution of Mean Temperatures')
 plt.xlabel('Mean Temperature (°C)')
