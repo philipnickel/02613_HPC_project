@@ -12,17 +12,17 @@ Results for building_id 10000:
 
 **2.** Familiarize yourself with the provided script. Run and time the reference implementation for asmall subset of floorplans (e.g., 10 - 20). How long do you estimate it would take to process all the floorplans? Perform the timing as a batch job so you get relieable results.
 
-Time python gives the following time for 1 sample (Building_id 10000)
+Time python gives the following time for 10 samples
 
 | Time type | Duration |
-| -------- | -------  |
-| real     | 0m5.690s |
-| user     | 0m5.641s |
-| sys      | 0m0.031s |
+| --------  | -------   |
+| real      | 1m15.619s |
+| user	    | 1m14.981s |
+| sys	    | 0m0.178s  |
 
 Using ls /dtu/projects/02613_2025/data/modified_swiss_dwellings/ | wc -l there is 9143 different building id's
 
-The esitmated time to process all floor plans is: 14h27m3.6s
+The esitmated time to process all floor plans is approximately 19h1m
 
 
 **3.** Visualize the simulation results for a few floorplans.
@@ -68,9 +68,29 @@ We take speed up time for p=2
 
 - a)    Run and time the new solution for a small subset of floorplans. How does the performance compare to the reference?
 
+For the refrence we got this performance:
+
+| Time type | Duration |
+| --------  | -------   |
+| real      | 1m15.619s |
+| user	    | 1m14.981s |
+| sys	    | 0m0.178s  |
+
+For the new rewritten jacobi function we got:
+
+| Time type | Duration |
+| -------- | -------   |
+| real	   | 0m59.987s |
+| user	   | 0m59.102s |
+| sys	   | 0m0.285s  |
+
 - b)    Explain your function. How did you ensure your access pattern works well with the CPU cache?
+For implementing the numba jit version of the jacobi function, we had to rewrite the indexing as numba doesnt allow for boolean array indexing, eg. u_new_interior = u_new[interior_mask]. Instead we created two new list (ys and xs) using np.where. These lists contained the interior mask indexes in a row major order for which allows for optimal cache storing. A loop over these list was created for where the the difference for each index was calculated. If the difference is bigger than the current delta then it is assigned as delta.
+
+
 
 - c)    How long would it now take to process all floorplans?
+It will approxiamately tak 15h14m
 
 
 **8.** Implement another solution writing a custom CUDA kernel with Numba. To synchronize threads between each iteration, the kernel should only performa single iterationof the Jacobi solver. Skip the early stopping criteria and just run for a fixed amount of iterations. Write a helper function which takes the same inputs as the reference implementation (except for the atol input which is not needed) and then calls your kernel repeatedly to perform the implementations.

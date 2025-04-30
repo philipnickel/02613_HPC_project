@@ -1,0 +1,83 @@
+building_id, mean_temp, std_temp, pct_above_18, pct_below_15
+10000, 14.01233878811275, 6.367431059312565, 30.941014791508444, 55.542295034537624
+10009, 11.000135812436373, 5.811144379826625, 16.6712734948236, 74.9723590310584
+10014, 14.744169941950119, 7.037733284673848, 38.26367541377415, 52.80837116508215
+10019, 14.735524480624482, 7.030325006703675, 38.14915412864569, 52.92926826787113
+10029, 10.616037322820358, 6.317331938274926, 18.25563221896085, 74.51301795448481
+10031, 12.507072852890545, 6.278432089100354, 24.044722033998173, 66.39513301711693
+10051, 13.289039951277402, 5.999085063388632, 25.97693550756574, 62.859923608050536
+10053, 11.366493551285709, 6.26121798185875, 19.9510754583921, 72.41052538787024
+10056, 14.220114507861702, 6.179461157398302, 31.763454814173965, 57.06174975667784
+10064, 12.71696893739585, 6.964227784263683, 28.79137124461432, 62.75688345539249
+building_id, mean_temp, std_temp, pct_above_18, pct_below_15
+10000, 14.01233878811275, 6.367431059312565, 30.941014791508444, 55.542295034537624
+10009, 11.000135812436373, 5.811144379826625, 16.6712734948236, 74.9723590310584
+10014, 14.744169941950119, 7.037733284673848, 38.26367541377415, 52.80837116508215
+10019, 14.735524480624482, 7.030325006703675, 38.14915412864569, 52.92926826787113
+10029, 10.616037322820358, 6.317331938274926, 18.25563221896085, 74.51301795448481
+10031, 12.507072852890545, 6.278432089100354, 24.044722033998173, 66.39513301711693
+10051, 13.289039951277402, 5.999085063388632, 25.97693550756574, 62.859923608050536
+10053, 11.366493551285709, 6.26121798185875, 19.9510754583921, 72.41052538787024
+10056, 14.220114507861702, 6.179461157398302, 31.763454814173965, 57.06174975667784
+10064, 12.71696893739585, 6.964227784263683, 28.79137124461432, 62.75688345539249
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 24834553: <time_jacobi> in cluster <dcc> Done
+
+Job <time_jacobi> was submitted from host <n-62-30-5> by user <s214786> in cluster <dcc> at Wed Apr 30 10:48:23 2025
+Job was executed on host(s) <20*n-62-12-6>, in queue <hpc>, as user <s214786> in cluster <dcc> at Wed Apr 30 11:06:59 2025
+</zhome/e5/d/167772> was used as the home directory.
+</zhome/e5/d/167772/Desktop/02613/02613_HPC_project> was used as the working directory.
+Started at Wed Apr 30 11:06:59 2025
+Terminated at Wed Apr 30 11:09:16 2025
+Results reported at Wed Apr 30 11:09:16 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J time_jacobi
+#BSUB -q hpc
+#BSUB -R "select[model == XeonGold6226R]"
+#BSUB -R "rusage[mem=1GB]"
+#BSUB -B 
+#BSUB -R "span[hosts=1]"
+#BSUB -n 20
+#BSUB -o Logs/outputs/time_jacobi_%J.out
+#BSUB -e Logs/errors/time_jacobi_%J.err
+
+# Initialize Python environment
+source /dtu/projects/02613_2025/conda/conda_init.sh
+conda activate 02613
+
+#Run Python script
+time python Python_scripts/original_script.py 10
+time python Python_scripts/numba_script.py 10
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   136.03 sec.
+    Max Memory :                                 124 MB
+    Average Memory :                             113.33 MB
+    Total Requested Memory :                     20480.00 MB
+    Delta Memory :                               20356.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   138 sec.
+    Turnaround time :                            1253 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <Logs/errors/time_jacobi_24834553.err> for stderr output of this job.
+
