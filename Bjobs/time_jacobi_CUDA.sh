@@ -7,12 +7,12 @@
 #BSUB -B 
 #BSUB -R "span[hosts=1]"
 #BSUB -n 4
-#BSUB -o Logs/outputs/time_jacobi_cp%J.out
-#BSUB -e Logs/errors/time_jacobi__cp%J.err
+#BSUB -o Logs/outputs/time_Cuda.out
+#BSUB -e Logs/errors/time_Cuda.err
 
 # Initialize Python environment
 source /dtu/projects/02613_2025/conda/conda_init.sh
 conda activate 02613
 
 #Run Python script
-time python Python_scripts/cupy_script.py 10
+time python Python_scripts/CUDA_script.py 10
