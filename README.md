@@ -85,11 +85,13 @@ For the new rewritten jacobi function we got:
 | sys	   | 0m0.285s  |
 
 - b)    Explain your function. How did you ensure your access pattern works well with the CPU cache?
+
 For implementing the numba jit version of the jacobi function, we had to rewrite the indexing as numba doesnt allow for boolean array indexing, eg. u_new_interior = u_new[interior_mask]. Instead we created two new list (ys and xs) using np.where. These lists contained the interior mask indexes in a row major order for which allows for optimal cache storing. A loop over these list was created for where the the difference for each index was calculated. If the difference is bigger than the current delta then it is assigned as delta.
 
 
 
 - c)    How long would it now take to process all floorplans?
+
 It will approxiamately tak 15h14m
 
 
@@ -105,11 +107,23 @@ It will approxiamately tak 15h14m
 **9.**  Adapt the reference solution to run on the GPU using CuPy.
 
 
-- a)    Run and time the new solution for a small subset of floorplans. How does the performancecompare to the reference?
+- a)    Run and time the new solution for a small subset of floorplans. How does the performance compare to the reference?
+
+| Time type | Duration |
+| -------- | -------   |
+| real	   | 0m34.292s |
+| user	   | 0m30.940s |
+| sys      | 0m0.635s  |
+
+Almost double speed up.
 
 - b)    How long would it now take to process all floorplans?
 
+I now takes approximately 8h43m
+
 - c)    Was anything surprising about the performance?
+
+Initially running on an interactive gpu (voltash), gave worse results approx. 17s for computing only building 1000. But computing for 10 buildings was almost yeilded almost a 2x speed-up compared to the refrence
 
 
 **10.** Profile the CuPy solution using the nsys profiler. What is the main issue regarding performance? (Hint: see exercises from week 10) Try to fix it.

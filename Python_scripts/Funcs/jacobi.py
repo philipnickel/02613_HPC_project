@@ -2,6 +2,7 @@ from os.path import join
 import sys
 
 import numpy as np
+import cupy as cp
 from numba import jit, njit, prange
 
 #@profile
@@ -101,3 +102,19 @@ def numba_helper_parallel(u, ys, xs, max_iter, atol=1e-6):
             break
 
     return u
+
+def jacobi_cp(u, interior_mask, max_iter, atol=1e-6):
+    u = cp.copy(u)
+    u = cp.array(u)
+    interior_mask = cp.array(interior_mask)
+    for i in range(max_iter):
+        # Compute average of left, right, up and down neighbors, see eq. (1)
+        u_new = 0.25 * (u[1:-1, :-2] + u[1:-1, 2:] + u[:-2, 1:-1] + u[2:, 1:-1])
+        u_new_interior = u_new[interior_mask]
+        delta = cp.abs(u[1:-1, 1:-1][interior_mask] - u_new_interior).max()
+        u[1:-1, 1:-1][interior_mask] = u_new_interior
+
+        if delta < atol:
+            break
+    return u
+
