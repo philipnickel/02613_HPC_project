@@ -81,7 +81,7 @@ The esitmated time to process all floor plans is approximately 19h1m
 
 - d) How long would you estimate it would take to process all floorplans using your fastestparallel solution?
   
-  Considering that the runtime of the statically parallelized script with 16 cores is approximately 51.145 seconds for 20 floorplans, the time per floorplan is about 2.557 seconds. Assuming this rate, processing all floorplans would take around 6 hours, 29 minutes, and 39 seconds.
+  Considering that the runtime of the statically parallelized script with 16 cores is approximately 51.145 seconds for 20 floorplans, the time per floorplan is about 2.557 seconds. Assuming this rate, processing all floorplans would take around 3 hours, 14 minutes, and 48 seconds.
 
   This demonstrates that static parallelization significantly reduced the original runtime, as about 8 hours has been cut off. This would mean than more than half of the original runtime has been removed with static parallelization.
 
@@ -195,10 +195,23 @@ This is mainly due to the convergence check each iteration, and a new solution w
 
 - a)    What is the distribution of the mean temperatures? Show your results as histograms.
 
+  <div style="text-align: center;">
+      <img src="average_mean_temp.png" width="400">
+  </div>
+
+
 - b)    What is the average mean temperature of the buildings?
+
+  Average of mean temperatures is 14.71°C.
 
 - c)    What is the average temperature standard deviation?
 
+  Average of temperature std. dev. is 6.80°C
+
 - d)    How many buildings had at least 50% of their area above 18ºC?
 
+  Buildings that had at least 50% of their area above 18ºC was 811.
+
 - e)    How many buildings had at least 50% of their area below 15ºC?
+
+  Buildings that had at least 50% of their area below 15ºC was 2464.
