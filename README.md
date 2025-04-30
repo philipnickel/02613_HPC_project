@@ -180,7 +180,13 @@ Computing for 10 buildings was almost yeilded almost a 2x speed-up compared to t
 
 **10.** Profile the CuPy solution using the nsys profiler. What is the main issue regarding performance? (Hint: see exercises from week 10) Try to fix it.
 The main issue regarding performance is the device to host transfer, which is 98% of time spent.
-This is mainly due to the convergence check each iteration, and a new solution was implemented trying to combat this issue. The new function makes fewer convergence checks and uses the norm to check calculate the residuals.
+This is mainly due to the convergence check each iteration, and a new solution was implemented trying to combat this issue. The new function makes fewer convergence checks and uses the norm to check calculate the residuals. Timed on a small subset of floorplans we get the following:
+
+| Time type | Duration |
+| -------- | -------   |
+| real     | 0m17.632s |
+| user	   | 0m16.500s |
+| sys	   | 0m0.368s  |
 
 **11. (Optional)** Improve the performance of one or more of your solutions further.  For example, parallelize your CPU JIT solution. Or use job arrays to parallelize a solution over multiple jobs. How fast can you get?
 

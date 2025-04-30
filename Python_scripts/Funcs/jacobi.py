@@ -173,6 +173,7 @@ def compute_residual(u, interior_mask):
     return xp.linalg.norm((lap[interior_mask]))
 
 
+
 def jacobi_cp(u, interior_mask, max_iter, atol=1e-2):
     u = cp.copy(u)
     u = cp.array(u)
