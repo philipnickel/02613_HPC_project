@@ -31,6 +31,7 @@ The esitmated time to process all floor plans is approximately 19h1m
   <img src="simulated_plots/10000_simulated.png" width="300"/>
   <img src="simulated_plots/10029_simulated.png" width="300"/>
   <img src="simulated_plots/10031_simulated.png" width="300"/>  
+  <img src="simulated_plots/10089_simulated.png" width="300"/>
 
 </p>
 
