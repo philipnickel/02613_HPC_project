@@ -26,6 +26,13 @@ The esitmated time to process all floor plans is: 14h27m3.6s
 
 
 **3.** Visualize the simulation results for a few floorplans.
+<p align="center">
+
+  <img src="simulated_plots/10000_simulated.png" width="300"/>
+  <img src="simulated_plots/10029_simulated.png" width="300"/>
+  <img src="simulated_plots/10031_simulated.png" width="300"/>  
+
+</p>
 
 
 **4.** Profile the reference jacobi function using kernprof. Explain the different parts of the function and how much time each part takes.
@@ -46,22 +53,67 @@ The esitmated time to process all floor plans is: 14h27m3.6s
 
 **5.** Make a new Python program where you parallelize the computations over the floorplans. Usestatic scheduling such that each worker is assigned the same amount of floorplans to process. You should use no more than 100 floorplans for your timing experiments. Again, use a batch job to ensure consistent results.
 
-- a)   Measure the speed-up as more workers are added. Plot your speed-ups. 
+- a)   Measure the speed-up as more workers are added. Plot your speed-ups.
+
+<div style="text-align: center;">
+  <img src="speedup_static.png" alt="Speed-up times" width="400">
+</div>
 
 - b) Estimate your parallel fraction according to Amdahl's law. How much (roughly) is paral-lelized?
-We take speed up time for p=2
-\[ \frac{1-\frac{1}{1.9363522}}{1-\frac{1}{2}}\approx 0.9668]\
+
+    To estimate the parallel fraction while considering all experiments, an ODE fit is used on the observations. This yields following figure:
+    
+    <div style="text-align: center;">
+      <img src="speedup_with_fit_static.png" width="400">
+    </div>
+
+    Where roughly 84% is parallelized.
+
 
 - c) What is your theoretical maximum speed-up according to Amdahl's law? How much of thatdid you achieve? How many cores did that take?
+    
+    With the fomer estimated parallel fraction, the maxmimum speed-up according to Amdahl's law is found as:
+
+    $$S(\infty) = \frac{1}{1 - 0.84} \approx 6.23 $$
+
+    From the figure in 5.a, it is seen that a speedup of around 4 is achieved with 16 parallel threads.
 
 - d) How long would you estimate it would take to process all floorplans using your fastestparallel solution?
+  
+  Considering that the runtime of the statically parallelized script with 16 cores is approximately 51.145 seconds for 20 floorplans, the time per floorplan is about 2.557 seconds. Assuming this rate, processing all floorplans would take around 6 hours, 29 minutes, and 39 seconds.
+
+  This demonstrates that static parallelization significantly reduced the original runtime, as about 8 hours has been cut off. This would mean than more than half of the original runtime has been removed with static parallelization.
 
 
 **6.** The amount of iterations needed to reach convergence will vary from floorplan to floorplan. Re-do your parallelization experiment using dynamic scheduling.
 
 - a)   Did it get faster? By how much?
 
+  <div style="text-align: center;">
+      <img src="compare_runtimes.png" width="400">
+  </div>
+
+  The figure highlights runtimes of both static and dynamic parallelization where it is evident that static scheduling initially has an advantage compared to dynamic scheduling. This is most likely due to the overhead of assigning workers to tasks when there is few workers available.
+
+  As stated in the problemformulation, the convergence will vary from floorplan to floorplan which would make dynamic scheduling as the obvious choice for parallelization. The advantage is seen at around 8 workers where the runtime becomes quicker than static scheduling, and for the rest of the workers it stays that way.
+
+  So, in summary, if enough workers are available, then dynamic scheduling will be quicker than static scheduling due to the difference of convergence rates from floorplans. 
+
 - b)   Did the speed-up improve or worsen?
+
+  <div style="text-align: center;">
+      <img src="speedup_with_fit_dynamic.png" width="400">
+  </div>
+
+  From the figure, equivalent to 5.b but script with dynamic scheduling, it becomes evident that speedup sees a significant improvement, and around 88% of the script is parallized. The maximum achieved speedup is around 6 which is almost 1.5x better than what was achieved with static scheduling. 
+
+  Moreover, comparing theoretical maximum speedups:
+  
+  $S_{dynamic}(\infty)=8.40$,
+
+  $S_{static}(\infty)=6.23$,
+
+  it is evident that the solution which utilizes dynamic scheduling will scale better with more number of workers due to the difference in computation time of each job handled by a single worker.
 
 
 **7.** Implement another solution where you rewrite the jacobi function using Numba JIT on the CPU.

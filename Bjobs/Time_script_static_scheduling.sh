@@ -5,9 +5,9 @@
 #BSUB -R "select[model == XeonGold6226R]"
 #BSUB -R "rusage[mem=1GB]"
 #BSUB -R "span[hosts=1]"
-#BSUB -n 20
-#BSUB -o python_cores20_parallized_%J.out
-#BSUB -e python_cores20_parallized_%J.err
+#BSUB -n 16
+#BSUB -o Experiments/Static_parallelized/python_cores16_parallized_%J.out
+#BSUB -e Experiments/Static_parallelized/python_cores16_parallized_%J.err
 
 # Initialize Python environment
 source /dtu/projects/02613_2025/conda/conda_init.sh
