@@ -5,8 +5,10 @@ import sys
 import numpy as np
 
 from Funcs.load_data import load_data
-from Funcs.jacobi import jacobi, jacobi_numba
+from Funcs.jacobi import jacobi
 from Funcs.summary_stats import summary_stats
+from concurrent.futures import ProcessPoolExecutor, wait
+
 
 
 if __name__ == '__main__':
@@ -34,14 +36,20 @@ if __name__ == '__main__':
     ABS_TOL = 1e-4
 
     all_u = np.empty_like(all_u0)
-    for i, (u0, interior_mask) in enumerate(zip(all_u0, all_interior_mask)):
-        u = jacobi(u0, interior_mask, MAX_ITER, ABS_TOL)
-        all_u[i] = u
+
+    max_workers = int(os.environ.get("LSB_DJOB_NUMPROC", os.cpu_count()))
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(jacobi, u0, mask, MAX_ITER, ABS_TOL)  
+           for u0, mask in zip(all_u0, all_interior_mask)]
+
+        wait(futures)
+
+        all_u = np.array([future.result() for future in futures])
     
-    out_save_dir = "simulated_data"
+    out_save_dir = "parallized_simulated_data"
     os.makedirs(out_save_dir, exist_ok=True)
     for bui in range(all_u.shape[0]):
-        np.save(f"simulated_data/{building_ids[bui]}", all_u[bui])
+        np.save(f"parallized_simulated_data/{building_ids[bui]}", all_u[bui])
 
     # Print summary statistics in CSV format
     stat_keys = ['mean_temp', 'std_temp', 'pct_above_18', 'pct_below_15']
