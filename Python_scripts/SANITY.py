@@ -30,8 +30,8 @@ if __name__ == '__main__':
         all_interior_mask[i] = interior_mask
 
     # Run jacobi iterations for each floor plan
-    MAX_ITER = 20_000
-    Alg_TOL = 1e-2
+    MAX_ITER = 25_000
+    Alg_TOL = 1e-20
 
     all_u = np.empty_like(all_u0)
     all_residuals_cuda = np.empty((N, MAX_ITER))

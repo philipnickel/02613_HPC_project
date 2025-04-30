@@ -7,8 +7,8 @@
 #BSUB -B 
 #BSUB -R "span[hosts=1]"
 #BSUB -n 4
-#BSUB -o Logs/outputs/time_jacobi_cp%J.out
-#BSUB -e Logs/errors/time_jacobi__cp%J.err
+#BSUB -o Logs/outputs/time_jacobi_cp_opt.out
+#BSUB -e Logs/errors/time_jacobi_cp_opt.err
 
 # Initialize Python environment
 source /dtu/projects/02613_2025/conda/conda_init.sh
