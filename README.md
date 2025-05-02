@@ -139,7 +139,7 @@ The esitmated time to process all floor plans is approximately 19h1m
 
 - b)    Explain your function. How did you ensure your access pattern works well with the CPU cache?
 
-For implementing the numba jit version of the jacobi function, we had to rewrite the indexing as numba doesnt allow for boolean array indexing, eg. u_new_interior = u_new[interior_mask]. Instead we created two new list (ys and xs) using np.where. These lists contained the interior mask indexes in a row major order for which allows for optimal cache storing. A loop over these list was created for where the the difference for each index was calculated. If the difference is bigger than the current delta then it is assigned as delta.
+  For implementing the numba jit version of the jacobi function, we had to rewrite the indexing as numba doesnt allow for boolean array indexing, eg. u_new_interior = u_new[interior_mask]. Instead we created two new list (ys and xs) using np.where. These lists contained the interior mask indexes in a row major order for which allows for optimal cache storing. A loop over these list was created for where the the difference for each index was calculated. If the difference is bigger than the current delta then it is assigned as delta.
 
 
 
@@ -179,8 +179,8 @@ Computing for 10 buildings was almost yeilded almost a 2x speed-up compared to t
 
 
 **10.** Profile the CuPy solution using the nsys profiler. What is the main issue regarding performance? (Hint: see exercises from week 10) Try to fix it.
-The main issue regarding performance is the device to host transfer, which is 98% of time spent.
-This is mainly due to the convergence check each iteration, and a new solution was implemented trying to combat this issue. The new function makes fewer convergence checks and uses the norm to check calculate the residuals. Timed on a small subset of floorplans we get the following:
+  The main issue regarding performance is the device to host transfer, which is 98% of time spent.
+  This is mainly due to the convergence check each iteration, and a new solution was implemented trying to combat this issue. The new function makes fewer convergence checks and uses the norm to check calculate the residuals. Timed on a small subset of floorplans we get the following:
 
 | Time type | Duration |
 | -------- | -------   |
