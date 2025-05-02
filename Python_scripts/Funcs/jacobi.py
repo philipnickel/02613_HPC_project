@@ -18,20 +18,20 @@ def jacobi(u, interior_mask, max_iter, atol=1e-6, print_residual=False, save_res
         u[1:-1, 1:-1][interior_mask] = u_new_interior
 
         if use_alg_residual and i % 100 == 0:
-            residuals.append(compute_residual(u, interior_mask))
+            residuals.append(compute_residual_cpu(u, interior_mask))
 
         if not use_alg_residual:
             if delta < atol:
                 if print_residual:
-                    print(f"Algebraic Residual: {compute_residual(u, interior_mask)})")
+                    print(f"Algebraic Residual: {compute_residual_cpu(u, interior_mask)})")
                     print(f"Converged in {i} iterations")
-                return u, residuals if save_residuals else u
+            return u, residuals 
         elif use_alg_residual:
-            if compute_residual(u, interior_mask) < atol:
+            if compute_residual_cpu(u, interior_mask) < atol:
                 if print_residual:
-                    print(f"Algebraic Residual: {compute_residual(u, interior_mask)})")
+                    print(f"Algebraic Residual: {compute_residual_cpu(u, interior_mask)})")
                     print(f"Converged in {i} iterations")
-                return u, residuals if save_residuals else u
+            return u, residuals 
 
 
 
@@ -40,17 +40,17 @@ def jacobi_numba(u, interior_mask, max_iter, atol=1e-6, parallel=False, print_re
     if parallel: 
         u, residuals = numba_helper_parallel(u, ys, xs, interior_mask, max_iter, atol, save_residuals, use_alg_residual)
         if print_residual:
-            print(f"Algebraic Residual: {compute_residual(u, interior_mask)})")
-        return u 
+            print(f"Algebraic Residual: {compute_residual_cpu(u, interior_mask)})")
+        return u, residuals
     else: 
         u, residuals = numba_helper(u, ys, xs, interior_mask,  max_iter, atol, save_residuals, use_alg_residual)
         if print_residual:
-            print(f"Algebraic Residual: {compute_residual(u, interior_mask)})")
+            print(f"Algebraic Residual: {compute_residual_cpu(u, interior_mask)})")
 
         if save_residuals:
             return u, residuals
         else:
-            return u 
+            return u, residuals
 
 @njit(parallel=True)
 def compute_u_new_parallel(u, u_new):
@@ -86,22 +86,22 @@ def numba_helper(u, ys, xs,interior_mask,  max_iter, atol=1e-6, save_residuals=F
             u[i + 1, j + 1] = u_new[i, j]
 
         if use_alg_residual and it % 100 == 0:
-            residuals.append(compute_residual(u, interior_mask))
+            residuals.append(compute_residual_cpu(u, interior_mask))
 
         if not use_alg_residual:
             if delta < atol:
                 print(f"Converged in {it} iterations")
                 if save_residuals:
                     return u, residuals
-                else:
-                    return u 
+                
+            return u, residuals
         elif use_alg_residual:
-            if compute_residual(u, interior_mask) < atol:
+            if compute_residual_cpu(u, interior_mask) < atol:
                 print(f"Converged in {it} iterations")
                 if save_residuals:
                     return u, residuals
-                else:
-                    return u 
+                
+            return u, residuals
 
 
 @njit
@@ -124,22 +124,22 @@ def numba_helper_parallel(u, ys, xs, interior_mask, max_iter, atol=1e-6, save_re
             u[i + 1, j + 1] = u_new[i, j]
 
         if use_alg_residual and it % 100 == 0:
-            residuals.append(compute_residual(u, interior_mask))
+            residuals.append(compute_residual_cpu(u, interior_mask))
 
         if not use_alg_residual:
             if delta < atol:
                 print(f"Converged in {it} iterations")
                 if save_residuals:
                     return u, residuals
-                else:
-                    return u 
+             
+            return u, residuals 
         elif use_alg_residual:
-            if compute_residual(u, interior_mask) < atol:
+            if compute_residual_cpu(u, interior_mask) < atol:
                 print(f"Converged in {it} iterations")
                 if save_residuals:
                     return u, residuals
-                else:
-                    return u 
+                
+            return u, residuals
 
 
 
@@ -186,30 +186,47 @@ def jacobi_cuda(u_host, interior_mask, max_iter, atol=1e-6, interval=10, save_re
         if (it + 1) % interval == 0:
             cuda.synchronize()
             u_host_current = u.copy_to_host()
-            residual = compute_residual(u_host_current, interior_mask)
+            residual = compute_residual_cpu(u_host_current, interior_mask)
             residuals.append(residual)
 
             if residual < atol:
                 print(f"Converged in {it + 1} iterations (residual={residual:.2e})")
-                return u_host_current
+                break
     if save_residuals:
+
         return u.copy_to_host(), residuals
     else:
         return u.copy_to_host()
-  
-def compute_residual(u, interior_mask):
+
+def compute_residual_gpu(u, interior_mask):
     xp = cp.get_array_module(u)
     lap = (
         u[:-2, 1:-1] + u[2:, 1:-1] + u[1:-1, :-2] + u[1:-1, 2:] - 4 * u[1:-1, 1:-1]
     )
     return xp.linalg.norm((lap[interior_mask]))
+import numpy as np
+from numba import njit
 
+@njit
+def compute_residual_cpu(u, interior_mask):
+    nrows, ncols = u.shape
+    residual_sum = 0.0
+    for i in range(1, nrows - 1):
+        for j in range(1, ncols - 1):
+            if interior_mask[i-1, j-1]:  # mask matches the shape of lap
+                lap = (
+                    u[i - 1, j] + u[i + 1, j] +
+                    u[i, j - 1] + u[i, j + 1] -
+                    4.0 * u[i, j]
+                )
+                residual_sum += lap * lap
+    return np.sqrt(residual_sum)
 
 def jacobi_cp(u, interior_mask, max_iter, atol=1e-2, save_residuals=False):
     u = cp.copy(u)
     u = cp.array(u)
     interior_mask = cp.array(interior_mask)
-    residuals = []
+    residuals = [] 
     interval = 100
     for i in range(max_iter):
         # Compute average of left, right, up and down neighbors, see eq. (1)
@@ -217,7 +234,7 @@ def jacobi_cp(u, interior_mask, max_iter, atol=1e-2, save_residuals=False):
         u_new_interior = u_new[interior_mask]
         u[1:-1, 1:-1][interior_mask] = u_new_interior
         if (i + 1) % interval == 0:
-            residual = compute_residual(u, interior_mask)
+            residual = compute_residual_gpu(u, interior_mask)
             residuals.append(residual)
 
             if residual < atol:
@@ -225,4 +242,4 @@ def jacobi_cp(u, interior_mask, max_iter, atol=1e-2, save_residuals=False):
                     return u, residuals
                 else:
                     return u
-
+    return u, residuals

@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     # Run jacobi iterations for each floor plan
     MAX_ITER = 25_000
-    Alg_TOL = 1e-20
+    Alg_TOL = 1e-10
 
     all_u = np.empty_like(all_u0)
     all_residuals_cuda = np.empty((N, MAX_ITER))
@@ -41,43 +41,37 @@ if __name__ == '__main__':
     all_residuals_ref = np.empty((N, MAX_ITER))
     for i, (u0, interior_mask) in enumerate(zip(all_u0, all_interior_mask)):
         u, residuals_cuda = jacobi_cuda(u0, interior_mask, MAX_ITER, Alg_TOL, interval=100, save_residuals=True)
-        u, residuals_cp = jacobi_cp(u0, interior_mask, MAX_ITER, Alg_TOL, interval=100, save_residuals=True)
+        u, residuals_cp = jacobi_cp(u0, interior_mask, MAX_ITER, Alg_TOL, save_residuals=True)
         u, residuals_numba = jacobi_numba(u0, interior_mask, MAX_ITER, Alg_TOL, parallel=True, print_residual=True, save_residuals=True)
         u, residuals_numba_parallel = jacobi_numba(u0, interior_mask, MAX_ITER, Alg_TOL, parallel=False, print_residual=True, save_residuals=True)
         u, residuals_ref = jacobi(u0, interior_mask, MAX_ITER, Alg_TOL, print_residual=True, save_residuals=True)
-        all_u[i] = u
-        all_residuals_cuda[i] = residuals_cuda
-        all_residuals_cp[i] = residuals_cp
-        all_residuals_numba[i] = residuals_numba
-        all_residuals_numba_parallel[i] = residuals_numba_parallel
-        all_residuals_ref[i] = residuals_ref
+  
 
     # Print the residuals one by one
     print("CUDA:")
-    for i in range(N):
-        for j in range(len(all_residuals_cuda[i])):
-            print(f"Building {i}, iteration {j}: {all_residuals_cuda[i][j]}")
+    for i in range(len(residuals_cuda)):
+        print(residuals_cuda[i])
+        
     
     print("\nCP:")
-    for i in range(N):
-        for j in range(len(all_residuals_cp[i])):
-            print(f"Building {i}, iteration {j}: {all_residuals_cp[i][j]}")
-            
-    print("\nNumba:")
-    for i in range(N):
-        for j in range(len(all_residuals_numba[i])):
-            print(f"Building {i}, iteration {j}: {all_residuals_numba[i][j]}")
-            
-    print("\nNumba Parallel:")
-    for i in range(N):
-        for j in range(len(all_residuals_numba_parallel[i])):
-            print(f"Building {i}, iteration {j}: {all_residuals_numba_parallel[i][j]}")
-            
-    print("\nRef:")
-    for i in range(N):
-        for j in range(len(all_residuals_ref[i])):
-            print(f"Building {i}, iteration {j}: {all_residuals_ref[i][j]}")
 
+    for i in range(len(residuals_cp)):
+        print(residuals_cp[i])
+        
+    
+    print("\nNumba:")
+ 
+    for i in range(len(residuals_numba)):
+        print(residuals_numba[i])
+    
+    print("\nNumba Parallel:")
+    for i in range(len(residuals_numba_parallel)):
+        print(residuals_numba_parallel[i])
+    
+    print("\nRef:")
+    for i in range(len(residuals_ref)):
+        print(residuals_ref[i])
+    
 
     out_save_dir = "simulated_data"
     os.makedirs(out_save_dir, exist_ok=True)
