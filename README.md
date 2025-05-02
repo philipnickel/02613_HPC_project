@@ -179,6 +179,7 @@ Computing for 10 buildings was almost yeilded almost a 2x speed-up compared to t
 
 
 **10.** Profile the CuPy solution using the nsys profiler. What is the main issue regarding performance? (Hint: see exercises from week 10) Try to fix it.
+
   The main issue regarding performance is the device to host transfer, which is 98% of time spent.
   This is mainly due to the convergence check each iteration, and a new solution was implemented trying to combat this issue. The new function makes fewer convergence checks and uses the norm to check calculate the residuals. Timed on a small subset of floorplans we get the following:
 
