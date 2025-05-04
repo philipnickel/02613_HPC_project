@@ -2,7 +2,7 @@
 
 ### Tasks 
 **1.** 
-Familiarize yourself with the data. Load and visualize the input data for a few floorplans using aseperate Python script, Jupyter notebook or your preferred tool.
+Familiarize yourself with the data. Load and visualize the input data for a few floorplans using a separate Python script, Jupyter notebook or your preferred tool.
 
 Results for building_id 10000:
 
@@ -10,7 +10,7 @@ Results for building_id 10000:
 |-------------|-----------------|----------------|--------------------|--------------------|
 | 10000       | 14.01233878811275 | 6.367431059312565 | 30.941014791508444 | 55.542295034537624 |
 
-**2.** Familiarize yourself with the provided script. Run and time the reference implementation for asmall subset of floorplans (e.g., 10 - 20). How long do you estimate it would take to process all the floorplans? Perform the timing as a batch job so you get relieable results.
+**2.** Familiarize yourself with the provided script. Run and time the reference implementation for a small subset of floorplans (e.g., 10 - 20). How long do you estimate it would take to process all the floorplans? Perform the timing as a batch job so you get reliable results.
 
 Time python gives the following time for 10 samples
 
@@ -22,7 +22,7 @@ Time python gives the following time for 10 samples
 
 Using ls /dtu/projects/02613_2025/data/modified_swiss_dwellings/ | wc -l there is 4571 different building id's
 
-The esitmated time to process all floor plans is approximately 9h30m
+The estimated time to process all floor plans is approximately 9h30m
 
 Requested hardware for the timing:
 | Resource Type | Specification                    |
@@ -57,12 +57,14 @@ Requested hardware for the timing:
 | 18     | 1     | 0.5       | 0.5          | 0.0    | break                                                                         |
 | 19     | 1     | 0.2       | 0.2          | 0.0    | return u                                                                      |
 
+To verify correctness of all solver implementations, convergence plots were generated using a Method of Manufactured Solutions (MMS) approach. The test uses a known analytical solution to Laplace's equation, applies boundary conditions, and tracks residual convergence over iterations for each implementation. Residuals were sampled every 500 iterations using the L2-norm of the discrete Laplacian.  
+
 <div style="text-align: center;">
   <img src="Sanity_Plots/Jacobi_NumPy.png" width="300">
-  <p>The plot shows residuals from a Method of Manufactured Solutions (MMS) problem for the NumPy Jacobi solver. The exponential decrease in residuals over iterations confirms the method's convergence properties. The steep decline indicates the solver efficiently reaches the specified tolerance criteria while correctly approximating the manufactured solution.</p>
+  <p>Observing the residuals as a function of iterations, we see the solver is converging towards the analytical solution.</p>
 </div>
 
-**5.** Make a new Python program where you parallelize the computations over the floorplans. Usestatic scheduling such that each worker is assigned the same amount of floorplans to process. You should use no more than 100 floorplans for your timing experiments. Again, use a batch job to ensure consistent results.
+**5.** Make a new Python program where you parallelize the computations over the floorplans. Use static scheduling such that each worker is assigned the same amount of floorplans to process. You should use no more than 100 floorplans for your timing experiments. Again, use a batch job to ensure consistent results.
 
 Requested hardware for the static scheduling:
 | Resource Type | Specification                    |
@@ -76,7 +78,7 @@ Requested hardware for the static scheduling:
     <img src="speedup_static.png" alt="Speed-up times" width="400">
   </div>
 
-- b) Estimate your parallel fraction according to Amdahl's law. How much (roughly) is paral-lelized?
+- b) Estimate your parallel fraction according to Amdahl's law. How much (roughly) is parallelized?
 
     To estimate the parallel fraction while considering all experiments, an ODE fit is used on the observations. This yields following figure:
     
@@ -87,19 +89,19 @@ Requested hardware for the static scheduling:
     Where roughly 84% is parallelized.
 
 
-- c) What is your theoretical maximum speed-up according to Amdahl's law? How much of thatdid you achieve? How many cores did that take?
+- c) What is your theoretical maximum speed-up according to Amdahl's law? How much of that did you achieve? How many cores did that take?
     
-    With the fomer estimated parallel fraction, the maxmimum speed-up according to Amdahl's law is found as:
+    With the former estimated parallel fraction, the maximum speed-up according to Amdahl's law is found as:
 
     $$S(\infty) = \frac{1}{1 - 0.84} \approx 6.23 $$
 
     From the figure in 5.a, it is seen that a speedup of around 4 is achieved with 16 parallel threads.
 
-- d) How long would you estimate it would take to process all floorplans using your fastestparallel solution?
+- d) How long would you estimate it would take to process all floorplans using your fastest parallel solution?
   
   Considering that the runtime of the statically parallelized script with 16 cores is approximately 51.145 seconds for 20 floorplans, the time per floorplan is about 2.557 seconds. Assuming this rate, processing all floorplans would take around 3 hours, 14 minutes, and 48 seconds.
 
-  This demonstrates that static parallelization significantly reduced the original runtime, as about 8 hours has been cut off. This would mean than more than half of the original runtime has been removed with static parallelization.
+  This demonstrates that static parallelization significantly reduced the original runtime, as about 8 hours has been cut off. This would mean that more than half of the original runtime has been removed with static parallelization.
 
 
 **6.** The amount of iterations needed to reach convergence will vary from floorplan to floorplan. Re-do your parallelization experiment using dynamic scheduling.
@@ -116,9 +118,9 @@ Requested hardware for the dynamic scheduling:
       <img src="compare_runtimes.png" width="400">
   </div>
 
-  The figure highlights runtimes of both static and dynamic parallelization where it is evident that static scheduling initially has an advantage compared to dynamic scheduling. This is most likely due to the overhead of assigning workers to tasks when there is few workers available.
+  The figure highlights runtimes of both static and dynamic parallelization where it is evident that static scheduling initially has an advantage compared to dynamic scheduling. This is most likely due to the overhead of assigning workers to tasks when there are few workers available.
 
-  As stated in the problemformulation, the convergence will vary from floorplan to floorplan which would make dynamic scheduling as the obvious choice for parallelization. The advantage is seen at around 8 workers where the runtime becomes quicker than static scheduling, and for the rest of the workers it stays that way.
+  As stated in the problem formulation, the convergence will vary from floorplan to floorplan which would make dynamic scheduling as the obvious choice for parallelization. The advantage is seen at around 8 workers where the runtime becomes quicker than static scheduling, and for the rest of the workers it stays that way.
 
   So, in summary, if enough workers are available, then dynamic scheduling will be quicker than static scheduling due to the difference of convergence rates from floorplans. 
 
@@ -128,7 +130,7 @@ Requested hardware for the dynamic scheduling:
       <img src="speedup_with_fit_dynamic.png" width="400">
   </div>
 
-  From the figure, equivalent to 5.b but script with dynamic scheduling, it becomes evident that speedup sees a significant improvement, and around 88% of the script is parallized. The maximum achieved speedup is around 6 which is almost 1.5x better than what was achieved with static scheduling. 
+  From the figure, equivalent to 5.b but script with dynamic scheduling, it becomes evident that speedup sees a significant improvement, and around 88% of the script is parallelized. The maximum achieved speedup is around 6 which is almost 1.5x better than what was achieved with static scheduling. 
 
   Moreover, comparing theoretical maximum speedups:
   
@@ -169,21 +171,21 @@ Requested hardware for the Numba JIT implementation:
 
 <div style="text-align: center;">
   <img src="Sanity_Plots/Jacobi_Numba.png" width="300">
-  <p>The Numba JIT implementation shows residuals from a Method of Manufactured Solutions (MMS) problem with error reduction following an exponential decay pattern. This confirms that the optimized implementation maintains the same mathematical convergence properties to the manufactured solution while improving computational efficiency.</p>
+  <p>Convergence of solver implementation</p>
 </div>
 
 - b)    Explain your function. How did you ensure your access pattern works well with the CPU cache?
 
-  For implementing the numba jit version of the jacobi function, we had to rewrite the indexing as numba doesnt allow for boolean array indexing, eg. u_new_interior = u_new[interior_mask]. Instead we created two new list (ys and xs) using np.where. These lists contained the interior mask indexes in a row major order for which allows for optimal cache storing. A loop over these list was created for where the the difference for each index was calculated. If the difference is bigger than the current delta then it is assigned as delta.
+  For implementing the numba jit version of the jacobi function, we had to rewrite the indexing as numba doesn't allow for boolean array indexing, eg. u_new_interior = u_new[interior_mask]. Instead we created two new list (ys and xs) using np.where. These lists contained the interior mask indexes in a row major order which allows for optimal cache storing. A loop over these lists was created where the difference for each index was calculated. If the difference is bigger than the current delta then it is assigned as delta.
 
 
 
 - c)    How long would it now take to process all floorplans?
 
-It will approxiamately take 6h9m
+It will approximately take 6h9m
 
 
-**8.** Implement another solution writing a custom CUDA kernel with Numba. To synchronize threads between each iteration, the kernel should only performa single iterationof the Jacobi solver. Skip the early stopping criteria and just run for a fixed amount of iterations. Write a helper function which takes the same inputs as the reference implementation (except for the atol input which is not needed) and then calls your kernel repeatedly to perform the implementations.
+**8.** Implement another solution writing a custom CUDA kernel with Numba. To synchronize threads between each iteration, the kernel should only perform a single iteration of the Jacobi solver. Skip the early stopping criteria and just run for a fixed amount of iterations. Write a helper function which takes the same inputs as the reference implementation (except for the atol input which is not needed) and then calls your kernel repeatedly to perform the implementations.
 
 Requested hardware for the CUDA implementation:
 | Resource Type | Specification                    |
@@ -214,17 +216,16 @@ This approach significantly reduces computation time by executing thousands of p
 
 A key optimization in our CUDA implementation is how we handle convergence testing. Unlike the CPU implementations that check convergence after every iteration, we:
 
-1. Compute residuals less frequently (every `interval` iterations) to reduce costly host-device transfers
-2. Use the algebraic residual (the norm of the discrete Laplacian) rather than the maximum point-wise difference between iterations
-3. Only transfer the solution back to the host when performing convergence checks
+1. Compute residuals less frequently (every `interval` iterations) to reduce host-device transfers
+2. Use the algebraic residual (the norm of the discrete Laplacian) 
 
-The need to use algebraic residuals stem from the fact that maximum point-wise differences between iterations requires one to have the intermediate solutions from every iteration. This would require transfering solutions to the cpu every iteration. To be able to only do the convergence check every x iterations we need a different measure of convergence. The algebraic residual requires only information from the current iteration which enables us to only check for convergence occacionally. In our implementation we perform a check every 500 iterations. The algebraic residual based tolerance has been chose by computing the residual during iterations from our referance solution. 
+The need to use algebraic residuals stems from the fact that maximum point-wise differences between iterations requires one to have the intermediate solutions from every iteration. This would require transferring solutions to the CPU every iteration. To be able to only do the convergence check every x iterations we need a different measure of convergence. The algebraic residual requires only information from the current iteration which enables us to only check for convergence occasionally. In our implementation we perform a check every 500 iterations. The algebraic residual based tolerance has been chosen by computing the residual during iterations from our reference solution. We chose a tolerance ensuring we get at least as good of a solution as obtained by using the solution change as convergence-criteria. 
 
 This approach was critical for performance, as profiling (in task 10) showed that device-to-host transfers can consume up to 98% of execution time in naive GPU implementations. By reducing these transfers, we achieve much better utilization of the GPU's computational capabilities.
 
 <div style="text-align: center;">
   <img src="Sanity_Plots/Jacobi_CUDA.png" width="300">
-  <p>The CUDA implementation demonstrates residuals from a Method of Manufactured Solutions (MMS) problem following the expected convergence pattern. The plot confirms that the parallel GPU implementation maintains solution accuracy and convergence to the manufactured solution despite the architectural differences in computation.</p>
+  <p>Convergence of solver implementation.</p>
 </div>
 
 - b)    Run and time the new solution for a small subset of floorplans. How does the performance compare to the reference?
@@ -283,15 +284,15 @@ Requested hardware for the CuPy implementation:
 
 <div style="text-align: center;">
   <img src="Sanity_Plots/Jacobi_CuPy.png" width="300">
-  <p>The CuPy implementation shows the characteristic exponential decay in residuals from a Method of Manufactured Solutions (MMS) problem, confirming proper convergence. The solver reaches the same solution accuracy relative to the manufactured solution as other implementations while leveraging GPU acceleration through CuPy.</p>
+  <p>Convergence of solver implementation.</p>
 </div>
 
 - b)    How long would it now take to process all floorplans?
 
-I now takes approximately 2h18m
+It now takes approximately 2h18m
 
 - c)    Was anything surprising about the performance?
-Computing for 10 buildings was almost yeilded almost a 2x speed-up compared to the refrence.
+Computing for 10 buildings yielded almost a 2x speed-up compared to the reference.
 
 
 **10.** Profile the CuPy solution using the nsys profiler. What is the main issue regarding performance? (Hint: see exercises from week 10) Try to fix it.
@@ -323,7 +324,7 @@ The inherent sequential iterations of the Jacobi method cannot be parallelized (
 
 <div style="text-align: center;">
   <img src="Sanity_Plots/Jacobi_Numba_Parallel.png" width="300">
-  <p>The parallel Numba implementation demonstrates proper convergence with residuals from a Method of Manufactured Solutions (MMS) problem following the expected exponential decay. This confirms that the parallelization strategy maintains the mathematical integrity of the Jacobi solver in approximating the manufactured solution while improving computational performance.</p>
+  <p>Convergence of solver implementation.</p>
 </div>
 
 
@@ -348,7 +349,7 @@ Requested hardware for the above runs:
   
 **12.** Process all floorplans using one of your implementations (ideally a fast one) and answer the below questions. Hint: use Pandas to process the CSV results generated by the script.
 
-  A combination of the cuda-"ized" jacobi function and dýnamic parallelization was used to run through all floor plans which took approximately 29 minutes.
+  A combination of the CUDA-based jacobi function and dynamic parallelization was used to run through all floor plans which took approximately 29 minutes.
 
 - a)    What is the distribution of the mean temperatures? Show your results as histograms.
 

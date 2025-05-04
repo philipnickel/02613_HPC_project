@@ -1,0 +1,25 @@
+---
+title: "02613 HPC Mini-Project: Wall Heating"
+subtitle: "Performance Optimization of the Jacobi Solver for Swiss Floorplans"
+author:
+  - name: "Andreas Rosenquist"
+    affiliation: "s214604"
+  - name: "Kasper Rønberg"
+    affiliation: "s214786"
+  - name: "Philip Nickel"
+    affiliation: "s214960"
+format: 
+  pdf:
+    toc: true
+    number-sections: true
+    fontsize: 11pt
+    geometry: margin=1in
+engine: knitr
+execute: 
+  echo: true
+  warning: false
+  message: false
+---
+
+```{markdown}
+```{include: README.md}
