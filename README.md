@@ -20,10 +20,15 @@ Time python gives the following time for 10 samples
 | user	    | 1m14.981s |
 | sys	    | 0m0.178s  |
 
-Using ls /dtu/projects/02613_2025/data/modified_swiss_dwellings/ | wc -l there is 9143 different building id's
+Using ls /dtu/projects/02613_2025/data/modified_swiss_dwellings/ | wc -l there is 4571 different building id's
 
-The esitmated time to process all floor plans is approximately 19h1m
+The esitmated time to process all floor plans is approximately 9h30m
 
+Requested hardware for the timing:
+| Resource Type | Specification                    |
+|---------------|----------------------------------|
+| CPU           | 20 cores (Intel Xeon Gold 6226R) |
+| Memory        | 1 GB                            |
 
 **3.** Visualize the simulation results for a few floorplans.
 <p align="center">
@@ -52,7 +57,18 @@ The esitmated time to process all floor plans is approximately 19h1m
 | 18     | 1     | 0.5       | 0.5          | 0.0    | break                                                                         |
 | 19     | 1     | 0.2       | 0.2          | 0.0    | return u                                                                      |
 
+<div style="text-align: center;">
+  <img src="Sanity_Plots/Jacobi_NumPy.png" width="300">
+  <p>The plot shows residuals from a Method of Manufactured Solutions (MMS) problem for the NumPy Jacobi solver. The exponential decrease in residuals over iterations confirms the method's convergence properties. The steep decline indicates the solver efficiently reaches the specified tolerance criteria while correctly approximating the manufactured solution.</p>
+</div>
+
 **5.** Make a new Python program where you parallelize the computations over the floorplans. Usestatic scheduling such that each worker is assigned the same amount of floorplans to process. You should use no more than 100 floorplans for your timing experiments. Again, use a batch job to ensure consistent results.
+
+Requested hardware for the static scheduling:
+| Resource Type | Specification                    |
+|---------------|----------------------------------|
+| CPU           | 16 cores (Intel Xeon Gold 6226R) |
+| Memory        | 1 GB                            |
 
 - a)   Measure the speed-up as more workers are added. Plot your speed-ups.
 
@@ -88,6 +104,12 @@ The esitmated time to process all floor plans is approximately 19h1m
 
 **6.** The amount of iterations needed to reach convergence will vary from floorplan to floorplan. Re-do your parallelization experiment using dynamic scheduling.
 
+Requested hardware for the dynamic scheduling:
+| Resource Type | Specification                    |
+|---------------|----------------------------------|
+| CPU           | 16 cores (Intel Xeon Gold 6226R) |
+| Memory        | 1 GB                            |
+
 - a)   Did it get faster? By how much?
 
   <div style="text-align: center;">
@@ -119,23 +141,36 @@ The esitmated time to process all floor plans is approximately 19h1m
 
 **7.** Implement another solution where you rewrite the jacobi function using Numba JIT on the CPU.
 
+Requested hardware for the Numba JIT implementation:
+| Resource Type | Specification                    |
+|---------------|----------------------------------|
+| CPU           | 20 cores (Intel Xeon Gold 6226R) |
+| Memory        | 1 GB                            |
+
 - a)    Run and time the new solution for a small subset of floorplans. How does the performance compare to the reference?
 
-  For the refrence we got this performance:
+  For the reference implementation with 10 floorplans:
 
   | Time type | Duration |
   | --------  | -------   |
-  | real      | 1m15.619s |
-  | user	    | 1m14.981s |
-  | sys	    | 0m0.178s  |
+  | real      | 1m7.277s |
+  | user	    | 1m6.409s |
+  | sys	    | 0m0.202s  |
 
-  For the new rewritten jacobi function we got:
+  For the new rewritten jacobi function with 10 floorplans:
 
-    | Time type | Duration |
-    | -------- | -------   |
-    | real	   | 0m59.987s |
-    | user	   | 0m59.102s |
-    | sys	   | 0m0.285s  |
+  | Time type | Duration |
+  | -------- | -------   |
+  | real	   | 0m48.596s |
+  | user	   | 0m47.648s |
+  | sys	   | 0m0.230s  |
+
+  This represents approximately a 28% performance improvement over the reference implementation.
+
+<div style="text-align: center;">
+  <img src="Sanity_Plots/Jacobi_Numba.png" width="300">
+  <p>The Numba JIT implementation shows residuals from a Method of Manufactured Solutions (MMS) problem with error reduction following an exponential decay pattern. This confirms that the optimized implementation maintains the same mathematical convergence properties to the manufactured solution while improving computational efficiency.</p>
+</div>
 
 - b)    Explain your function. How did you ensure your access pattern works well with the CPU cache?
 
@@ -145,34 +180,115 @@ The esitmated time to process all floor plans is approximately 19h1m
 
 - c)    How long would it now take to process all floorplans?
 
-It will approxiamately tak 15h14m
+It will approxiamately take 6h9m
 
 
 **8.** Implement another solution writing a custom CUDA kernel with Numba. To synchronize threads between each iteration, the kernel should only performa single iterationof the Jacobi solver. Skip the early stopping criteria and just run for a fixed amount of iterations. Write a helper function which takes the same inputs as the reference implementation (except for the atol input which is not needed) and then calls your kernel repeatedly to perform the implementations.
 
+Requested hardware for the CUDA implementation:
+| Resource Type | Specification                    |
+|---------------|----------------------------------|
+| GPU           | 1 × GPU (exclusive_process mode) |
+| CPU           | 4 cores (Intel Xeon Gold 6226R)  |
+| Memory        | 2 GB                            |
+
 - a)    Briefly describe your new solution. How did you structure your kernel and helper function?
 
-- b)    Run and time the new solution for a small subset of floorplans. How does the performan cecompare to the reference?
+Our CUDA implementation leverages massive parallelism on the GPU by performing point-wise updates in parallel. The solution consists of two main components:
+
+1. A CUDA kernel function (`jacobi_kernel`) that:
+   - Uses CUDA's grid-stride pattern to assign each thread to a specific grid point
+   - Each thread independently computes the new temperature at its assigned point
+   - Only updates interior points based on the provided mask
+   - Boundary conditions are preserved by maintaining original values
+
+2. A helper function (`jacobi_cuda`) that:
+   - Transfers the initial temperature field and mask to the GPU
+   - Pre-allocates device memory for computation
+   - Sets up the execution grid with appropriate block sizes (16×16 threads per block)
+   - Repeatedly calls the kernel for each iteration
+   - Performs convergence checks periodically (every `interval` iterations) to minimize costly host-device transfers
+   - Swaps pointers between iterations to avoid unnecessary memory operations
+
+This approach significantly reduces computation time by executing thousands of point updates simultaneously on the GPU, while minimizing data transfers between CPU and GPU.
+
+A key optimization in our CUDA implementation is how we handle convergence testing. Unlike the CPU implementations that check convergence after every iteration, we:
+
+1. Compute residuals less frequently (every `interval` iterations) to reduce costly host-device transfers
+2. Use the algebraic residual (the norm of the discrete Laplacian) rather than the maximum point-wise difference between iterations
+3. Only transfer the solution back to the host when performing convergence checks
+
+The need to use algebraic residuals stem from the fact that maximum point-wise differences between iterations requires one to have the intermediate solutions from every iteration. This would require transfering solutions to the cpu every iteration. To be able to only do the convergence check every x iterations we need a different measure of convergence. The algebraic residual requires only information from the current iteration which enables us to only check for convergence occacionally. In our implementation we perform a check every 500 iterations. The algebraic residual based tolerance has been chose by computing the residual during iterations from our referance solution. 
+
+This approach was critical for performance, as profiling (in task 10) showed that device-to-host transfers can consume up to 98% of execution time in naive GPU implementations. By reducing these transfers, we achieve much better utilization of the GPU's computational capabilities.
+
+<div style="text-align: center;">
+  <img src="Sanity_Plots/Jacobi_CUDA.png" width="300">
+  <p>The CUDA implementation demonstrates residuals from a Method of Manufactured Solutions (MMS) problem following the expected convergence pattern. The plot confirms that the parallel GPU implementation maintains solution accuracy and convergence to the manufactured solution despite the architectural differences in computation.</p>
+</div>
+
+- b)    Run and time the new solution for a small subset of floorplans. How does the performance compare to the reference?
+
+  For the reference implementation with 10 floorplans:
+
+  | Time type | Duration |
+  | --------  | -------   |
+  | real      | 1m7.277s |
+  | user	    | 1m6.409s |
+  | sys	    | 0m0.202s  |
+
+  For the CUDA implementation with 10 floorplans:
+
+  | Time type | Duration |
+  | -------- | -------   |
+  | real	   | 0m5.590s |
+  | user	   | 0m4.319s |
+  | sys	   | 0m0.482s  |
+
+  This represents approximately a 92% reduction in runtime compared to the reference implementation, making it about 12 times faster.
 
 - c)    How long would it now take to process all floorplans?
+
+  Based on the timing of 5.59 seconds for 10 floorplans, processing all 4571 floorplans would take approximately 43m.
 
 
 **9.**  Adapt the reference solution to run on the GPU using CuPy.
 
+Requested hardware for the CuPy implementation:
+| Resource Type | Specification                    |
+|---------------|----------------------------------|
+| GPU           | 1 × GPU (exclusive_process mode) |
+| CPU           | 4 cores (Intel Xeon Gold 6226R)  |
+| Memory        | 2 GB                            |
 
 - a)    Run and time the new solution for a small subset of floorplans. How does the performance compare to the reference?
 
-  | Time type | Duration |
-  | -------- | -------   |
-  | real	   | 0m34.292s |
-  | user	   | 0m30.940s |
-  | sys      | 0m0.635s  |
+  For the reference implementation with 10 floorplans:
 
-  Almost double speed up.
+  | Time type | Duration |
+  | --------  | -------   |
+  | real      | 1m7.277s |
+  | user	    | 1m6.409s |
+  | sys	    | 0m0.202s  |
+
+  For the CuPy implementation with 10 floorplans:
+
+  | Time type | Duration |
+  | --------  | -------   |
+  | real	   | 0m18.088s |
+  | user	   | 0m17.001s |
+  | sys      | 0m0.363s  |
+
+  This represents approximately a 73% reduction in runtime compared to the reference implementation, making it about 3.7 times faster.
+
+<div style="text-align: center;">
+  <img src="Sanity_Plots/Jacobi_CuPy.png" width="300">
+  <p>The CuPy implementation shows the characteristic exponential decay in residuals from a Method of Manufactured Solutions (MMS) problem, confirming proper convergence. The solver reaches the same solution accuracy relative to the manufactured solution as other implementations while leveraging GPU acceleration through CuPy.</p>
+</div>
 
 - b)    How long would it now take to process all floorplans?
 
-I now takes approximately 8h43m
+I now takes approximately 2h18m
 
 - c)    Was anything surprising about the performance?
 Computing for 10 buildings was almost yeilded almost a 2x speed-up compared to the refrence.
@@ -191,7 +307,45 @@ Computing for 10 buildings was almost yeilded almost a 2x speed-up compared to t
 
 **11. (Optional)** Improve the performance of one or more of your solutions further.  For example, parallelize your CPU JIT solution. Or use job arrays to parallelize a solution over multiple jobs. How fast can you get?
 
+For the parallel Numba JIT implementation with 10 floorplans:
 
+| Time type | Duration |
+| -------- | -------   |
+| real	   | 0m19.853s |
+| user	   | 0m38.156s |
+| sys	   | 0m7.193s  |
+
+This represents a 59% reduction in runtime compared to the regular Numba JIT implementation and a 70% reduction compared to the reference implementation.
+
+The parallel implementation uses Numba's `@njit(parallel=True)` decorator and `prange` to parallelize computation across CPU cores.
+
+The inherent sequential iterations of the Jacobi method cannot be parallelized (each iteration depends on the results of the previous one), but since the Jacobi method only updates points based on neighboring values from the previous iteration, we can parallelize the computation within each iteration. This allows for row-wise parallel processing. 
+
+<div style="text-align: center;">
+  <img src="Sanity_Plots/Jacobi_Numba_Parallel.png" width="300">
+  <p>The parallel Numba implementation demonstrates proper convergence with residuals from a Method of Manufactured Solutions (MMS) problem following the expected exponential decay. This confirms that the parallelization strategy maintains the mathematical integrity of the Jacobi solver in approximating the manufactured solution while improving computational performance.</p>
+</div>
+
+
+### ⏱ **Execution Time (20 floors) Summary **
+| Implementation                         | Time for 20 Floors | Time/Floor (s) | Speedup vs Baseline | Est. Total Time (4571 floors) |
+|----------------------------------------|---------------------|----------------|----------------------|-------------------------------|
+| Original (NumPy)                       | 2m50.839s           | 8.54           | 1.00×                | 10h 51m 34s                   |
+| Numba (JIT)                            | 2m1.502s            | 6.08           | 1.40×                | 7h 43m 0s                     |
+| Parallel Numba (CPU, prange)           | 0m50.763s           | 2.54           | 3.36×                | 3h 13m 7s                     |
+| CuPy (GPU)                             | 0m41.531s           | 2.08           | 4.10×                | 2h 38m 44s                    |
+| CUDA (Numba kernel)                    | 0m11.386s           | 0.57           | 15.00×               | 43m 24s                       |
+| Dynamic Parallelized CUDA (best case)  | 0m7.294s            | 0.36           | 23.63×               | 27m 27s                       |
+
+Requested hardware for the above runs: 
+| Resource Type | Specification                    |
+|---------------|----------------------------------|
+| GPU           | 1 × GPU (exclusive_process mode) |
+| CPU           | 4 cores (Intel Xeon Gold 6226R)  |
+| Memory        | 15 GB                            |
+
+> **Note:** Timing results and speedup comparisons may differ from other measurements in this document due to differences in requested hardware and system load variations. The relative performance trends should remain consistent, but absolute timings may vary. All the above timings were performed from the same jobsubmission. 
+  
 **12.** Process all floorplans using one of your implementations (ideally a fast one) and answer the below questions. Hint: use Pandas to process the CSV results generated by the script.
 
   A combination of the cuda-"ized" jacobi function and dýnamic parallelization was used to run through all floor plans which took approximately 29 minutes.

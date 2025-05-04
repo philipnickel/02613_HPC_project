@@ -15,4 +15,3 @@ conda activate 02613
 
 #Run Python script
 time python Python_scripts/original_script.py 10
-time python Python_scripts/numba_script.py 10

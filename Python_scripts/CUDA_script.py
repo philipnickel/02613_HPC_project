@@ -31,11 +31,11 @@ if __name__ == '__main__':
 
     # Run jacobi iterations for each floor plan
     MAX_ITER = 20_000
-    Alg_TOL = 1e-2
+    Algebraic_TOL = 1e-2
 
     all_u = np.empty_like(all_u0)
     for i, (u0, interior_mask) in enumerate(zip(all_u0, all_interior_mask)):
-        u = jacobi_cuda(u0, interior_mask, MAX_ITER, Alg_TOL, interval=500)
+        u = jacobi_cuda(u0, interior_mask, MAX_ITER, Algebraic_TOL, interval=500)
         all_u[i] = u
     
     out_save_dir = "simulated_data"
@@ -43,10 +43,11 @@ if __name__ == '__main__':
     for bui in range(all_u.shape[0]):
         np.save(f"simulated_data/{building_ids[bui]}", all_u[bui])
 
+    """
     # Print summary statistics in CSV format
     stat_keys = ['mean_temp', 'std_temp', 'pct_above_18', 'pct_below_15']
     print('building_id, ' + ', '.join(stat_keys))  # CSV header
     for bid, u, interior_mask in zip(building_ids, all_u, all_interior_mask):
         stats = summary_stats(u, interior_mask)
         print(f"{bid},", ", ".join(str(stats[k]) for k in stat_keys))
-
+    """

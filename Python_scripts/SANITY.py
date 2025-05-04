@@ -1,87 +1,116 @@
-from os.path import join
-import os
-import sys
-
 import numpy as np
+import matplotlib.pyplot as plt
+from numba import cuda
+import cupy as cp
+from Funcs.jacobi import jacobi, jacobi_numba, jacobi_cp, jacobi_cuda
+import os
 
-from Funcs.load_data import load_data
-from Funcs.jacobi import jacobi, jacobi_numba, jacobi_cuda, jacobi_cp
-from Funcs.summary_stats import summary_stats
+# === MMS Problem Definition ===
+def manufactured_solution(nx, ny, Lx=1.0, Ly=1.0):
+    dx = Lx / (nx - 1)
+    dy = Ly / (ny - 1)
+    x = np.linspace(0, Lx, nx)
+    y = np.linspace(0, Ly, ny)
+    X, Y = np.meshgrid(x, y, indexing='ij')
+
+    # harmonic function: u = sin(pi x) * sinh(pi y)
+    u_exact = np.sin(np.pi * X) * np.sinh(np.pi * Y)
+    f = np.zeros_like(u_exact)  # Laplace's equation ⇒ zero RHS
+
+    u_exact_interior = u_exact[1:-1, 1:-1]
+    f_interior = f[1:-1, 1:-1]
+    interior_mask = np.ones_like(u_exact_interior, dtype=bool)
+
+    return u_exact, f_interior, interior_mask, dx, dy
 
 
-if __name__ == '__main__':
-    # Load data
-    LOAD_DIR = '/dtu/projects/02613_2025/data/modified_swiss_dwellings/'
-    with open(join(LOAD_DIR, 'building_ids.txt'), 'r') as f:
-        building_ids = f.read().splitlines()
-
-    if len(sys.argv) < 2:
-        N = 1
-    else:
-        N = int(sys.argv[1])
-    building_ids = building_ids[:N]
-
-    # Load floor plans
-    all_u0 = np.empty((N, 514, 514))
-    all_interior_mask = np.empty((N, 512, 512), dtype='bool')
-    for i, bid in enumerate(building_ids):
-        u0, interior_mask = load_data(LOAD_DIR, bid)
-        all_u0[i] = u0
-        all_interior_mask[i] = interior_mask
-
-    # Run jacobi iterations for each floor plan
-    MAX_ITER = 25_000
-    Alg_TOL = 1e-10
-
-    all_u = np.empty_like(all_u0)
-    all_residuals_cuda = np.empty((N, MAX_ITER))
-    all_residuals_cp = np.empty((N, MAX_ITER))
-    all_residuals_numba = np.empty((N, MAX_ITER))
-    all_residuals_numba_parallel = np.empty((N, MAX_ITER))
-    all_residuals_ref = np.empty((N, MAX_ITER))
-    for i, (u0, interior_mask) in enumerate(zip(all_u0, all_interior_mask)):
-        u, residuals_cuda = jacobi_cuda(u0, interior_mask, MAX_ITER, Alg_TOL, interval=100, save_residuals=True)
-        u, residuals_cp = jacobi_cp(u0, interior_mask, MAX_ITER, Alg_TOL, save_residuals=True)
-        u, residuals_numba = jacobi_numba(u0, interior_mask, MAX_ITER, Alg_TOL, parallel=True, print_residual=True, save_residuals=True)
-        u, residuals_numba_parallel = jacobi_numba(u0, interior_mask, MAX_ITER, Alg_TOL, parallel=False, print_residual=True, save_residuals=True)
-        u, residuals_ref = jacobi(u0, interior_mask, MAX_ITER, Alg_TOL, print_residual=True, save_residuals=True)
-  
-
-    # Print the residuals one by one
-    print("CUDA:")
-    for i in range(len(residuals_cuda)):
-        print(residuals_cuda[i])
-        
+# === Compute Residual Norm ===
+def compute_mms_residual(u, f, dx, dy, interior_mask):
     
-    print("\nCP:")
+    lap = (
+        u[:-2, 1:-1] + u[2:, 1:-1] +
+        u[1:-1, :-2] + u[1:-1, 2:] -
+        4 * u[1:-1, 1:-1]
+    ) / dx**2
 
-    for i in range(len(residuals_cp)):
-        print(residuals_cp[i])
-        
-    
-    print("\nNumba:")
- 
-    for i in range(len(residuals_numba)):
-        print(residuals_numba[i])
-    
-    print("\nNumba Parallel:")
-    for i in range(len(residuals_numba_parallel)):
-        print(residuals_numba_parallel[i])
-    
-    print("\nRef:")
-    for i in range(len(residuals_ref)):
-        print(residuals_ref[i])
-    
+    return np.linalg.norm((lap - f)[interior_mask])
 
-    out_save_dir = "simulated_data"
-    os.makedirs(out_save_dir, exist_ok=True)
-    for bui in range(all_u.shape[0]):
-        np.save(f"simulated_data/{building_ids[bui]}", all_u[bui])
 
-    # Print summary statistics in CSV format
-    stat_keys = ['mean_temp', 'std_temp', 'pct_above_18', 'pct_below_15']
-    print('building_id, ' + ', '.join(stat_keys))  # CSV header
-    for bid, u, interior_mask in zip(building_ids, all_u, all_interior_mask):
-        stats = summary_stats(u, interior_mask)
-        print(f"{bid},", ", ".join(str(stats[k]) for k in stat_keys))
+
+def mms_iterative(jacobi_func, name, u0, f, dx, dy, interior_mask,
+                         iter_chunk=500, max_total_iter=100000, atol=1e-9, **kwargs):
+    u = np.copy(u0)
+    residuals = []
+    total_iter = 0
+
+    while total_iter < max_total_iter:
+        u_result = jacobi_func(u, interior_mask, iter_chunk, atol=0.0, **kwargs)
+        u = u_result[0] if isinstance(u_result, tuple) else u_result
+
+        u_cpu = cp.asnumpy(u) if (cp and isinstance(u, cp.ndarray)) else u
+        res = compute_mms_residual(u_cpu, f, dx, dy, interior_mask)
+
+        residuals.append(res)
+        total_iter += iter_chunk
+        print(f"{name}: iter {total_iter:5d}, residual = {res:.3e}")
+        if res < atol:
+            break
+
+    return u, residuals
+
+
+
+# === Main Execution ===
+if __name__ == "__main__":
+    max_total_iter = 100000
+    atol = 1e-8
+    nx, ny = 50, 50
+
+    u_exact, f, interior_mask, dx, dy = manufactured_solution(nx, ny)
+    u0 = np.zeros((nx - 2, ny - 2))
+    u0_padded = np.pad(u0, pad_width=1)
+    u0_padded[0, :]  = u_exact[0, :]
+    u0_padded[-1, :] = u_exact[-1, :]
+    u0_padded[:, 0]  = u_exact[:, 0]
+    u0_padded[:, -1] = u_exact[:, -1]
+
+    results = {}
+
+    u_numpy, res_numpy = mms_iterative(jacobi, "Jacobi (NumPy)",
+                                              u0_padded, f, dx, dy, interior_mask)
+    results["Jacobi (NumPy)"] = res_numpy
+
+    u_numba, res_numba = mms_iterative(jacobi_numba, "Jacobi (Numba)",
+                                              u0_padded, f, dx, dy, interior_mask,
+                                              parallel=False)
+    results["Jacobi (Numba)"] = res_numba
+
+    u_numba_par, res_numba_par = mms_iterative(jacobi_numba, "Jacobi (Numba Parallel)",
+                                                      u0_padded, f, dx, dy, interior_mask,
+                                                      parallel=True)
+    results["Jacobi (Numba Parallel)"] = res_numba_par
+
+    u_cuda, res_cuda = mms_iterative(jacobi_cuda, "Jacobi (CUDA)",
+                                            u0_padded, f, dx, dy, interior_mask)
+    results["Jacobi (CUDA)"] = res_cuda
+
+    u_cp, res_cp = mms_iterative(jacobi_cp, "Jacobi (CuPy)",
+                                        u0_padded, f, dx, dy, interior_mask)
+    results["Jacobi (CuPy)"] = res_cp
+
+    # === Plot Results ===
+    os.makedirs("Sanity_Plots", exist_ok=True)
+
+    for label, res_list in results.items():
+        plt.figure()
+        plt.semilogy(np.arange(1, len(res_list) + 1) * 500, res_list, label=label)
+        plt.title(f"MMS Residual Convergence - {label}")
+        plt.xlabel("Iteration")
+        plt.ylabel("Residual (log scale)")
+        plt.legend()
+        plt.grid(True, which="both", ls="--")
+        plt.tight_layout()
+        filename = f"Sanity_Plots/{label.replace(' ', '_').replace('(', '').replace(')', '')}.png"
+        plt.savefig(filename)
+        plt.close()
 

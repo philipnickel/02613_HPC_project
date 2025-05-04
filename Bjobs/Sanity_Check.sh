@@ -1,5 +1,5 @@
 #!/bin/bash
-#BSUB -J time_jacobi_cp
+#BSUB -J sanity_check
 #BSUB -q c02613
 #BSUB -R "select[model == XeonGold6226R]"
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -7,8 +7,8 @@
 #BSUB -B 
 #BSUB -R "span[hosts=1]"
 #BSUB -n 4
-#BSUB -o Logs/outputs/Sanity.out
-#BSUB -e Logs/errors/Sanity.err
+#BSUB -oo Logs/outputs/Sanity.out
+#BSUB -eo Logs/errors/Sanity.err
 
 # Initialize Python environment
 source /dtu/projects/02613_2025/conda/conda_init.sh

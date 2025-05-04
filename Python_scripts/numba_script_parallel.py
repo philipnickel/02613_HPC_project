@@ -35,13 +35,14 @@ if __name__ == '__main__':
 
     all_u = np.empty_like(all_u0)
     for i, (u0, interior_mask) in enumerate(zip(all_u0, all_interior_mask)):
-        u = jacobi(u0, interior_mask, MAX_ITER, ABS_TOL, print_residual=False)
+        u = jacobi_numba(u0, interior_mask, MAX_ITER, ABS_TOL, parallel=True, print_residual=False)
         all_u[i] = u
     
     out_save_dir = "simulated_data"
     os.makedirs(out_save_dir, exist_ok=True)
     for bui in range(all_u.shape[0]):
         np.save(f"simulated_data/{building_ids[bui]}", all_u[bui])
+
 
     """
     # Print summary statistics in CSV format
@@ -51,3 +52,4 @@ if __name__ == '__main__':
         stats = summary_stats(u, interior_mask)
         print(f"{bid},", ", ".join(str(stats[k]) for k in stat_keys))
     """
+

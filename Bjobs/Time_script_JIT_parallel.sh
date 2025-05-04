@@ -1,5 +1,5 @@
 #!/bin/bash
-#BSUB -J Python
+#BSUB -J Time_script_JIT_parallel
 #BSUB -q hpc
 #BSUB -W 15
 #BSUB -R "select[model == XeonGold6226R]"

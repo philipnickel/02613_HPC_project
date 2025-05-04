@@ -1,0 +1,108 @@
+Running Original Implementation
+Running Numba Implementation
+Running Parallel Numba Implementation
+Running CuPy Implementation
+Running CUDA Implementation
+Running Dynamic Parallelized Cuda Implementation
+building_id, mean_temp, std_temp, pct_above_18, pct_below_15
+10000, 14.014658412647753, 6.367536721563129, 30.95367256157101, 55.50612997721601
+10009, 11.006799511993549, 5.809967710880731, 16.686350386973565, 74.94597446979596
+10014, 14.75570693400651, 7.030979725444269, 38.28912277844506, 52.76460169784817
+10019, 14.747894753258766, 7.023112769465386, 38.18475905636769, 52.89162877285073
+10029, 10.619469291253132, 6.314752765986499, 18.25563221896085, 74.51301795448481
+10031, 12.516258793612714, 6.27664246552707, 24.072710131691366, 66.34946822614383
+10051, 13.290411557695666, 5.999008893874241, 25.97693550756574, 62.85074188335537
+10053, 11.370251703720488, 6.2601770104867995, 19.953279266572636, 72.40391396332863
+10056, 14.221356804382864, 6.179411510548757, 31.770664359612127, 57.05454021123968
+10064, 12.72610172385812, 6.964209787867544, 28.837082640368028, 62.706309145196904
+10075, 15.170070487508289, 6.442289633385997, 39.24344139210317, 47.333495274269055
+10079, 15.101165698633856, 7.311874862912999, 41.924212360257464, 49.40812079562503
+10080, 15.784191171725098, 7.278397937988316, 46.39515631276269, 44.6845823005555
+10082, 16.477528331364095, 6.708160484377584, 48.70229007633588, 40.49689440993789
+10083, 15.640719441583178, 7.120734202230213, 44.861486133695344, 45.883370877030714
+10084, 15.102130459319687, 7.150188908337367, 40.915524770365906, 50.25598554434573
+10085, 15.870750583407286, 7.192069173889252, 46.18868243958183, 44.71579125576671
+10086, 14.396686115617571, 7.214086537021503, 37.27501208313195, 53.003383276945385
+10087, 15.082541833232698, 7.271016961714809, 41.56246770693397, 49.863312258682726
+10089, 13.999695381265049, 7.271663191050868, 35.49549379155121, 56.325241387136735
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 24907686: <time_all_solvers> in cluster <dcc> Done
+
+Job <time_all_solvers> was submitted from host <n-62-30-5> by user <s214960> in cluster <dcc> at Sun May  4 22:13:55 2025
+Job was executed on host(s) <4*n-62-12-22>, in queue <c02613>, as user <s214960> in cluster <dcc> at Sun May  4 22:13:56 2025
+</zhome/86/f/169037> was used as the home directory.
+</zhome/86/f/169037/hpc_python/02613_HPC_project> was used as the working directory.
+Started at Sun May  4 22:13:56 2025
+Terminated at Sun May  4 22:20:42 2025
+Results reported at Sun May  4 22:20:42 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+
+#!/bin/bash
+#BSUB -J time_all_solvers
+#BSUB -q c02613
+#BSUB -R "select[model == XeonGold6226R]"
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -R "rusage[mem=15GB]"
+#BSUB -B
+#BSUB -R "span[hosts=1]"
+#BSUB -n 4
+#BSUB -W 00:20
+#BSUB -oo Logs/outputs/time_all_solvers.out
+#BSUB -eo Logs/errors/time_all_solvers.err
+
+
+# Initialize Python environment
+source /dtu/projects/02613_2025/conda/conda_init.sh
+conda activate 02613
+
+#Run Python script
+
+echo "Running Original Implementation"
+time python Python_scripts/original_script.py 20
+
+
+echo "Running Numba Implementation"
+time python Python_scripts/numba_script.py 20
+
+echo "Running Parallel Numba Implementation"
+time python Python_scripts/numba_script_parallel.py 20
+
+echo "Running CuPy Implementation"
+time python Python_scripts/cupy_script.py 20
+
+echo "Running CUDA Implementation" 
+time python Python_scripts/CUDA_script.py 20
+
+echo "Running Dynamic Parallelized Cuda Implementation"
+time python Python_scripts/dynamic_parallized_script_cuda.py 20
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   478.67 sec.
+    Max Memory :                                 194 MB
+    Average Memory :                             147.00 MB
+    Total Requested Memory :                     61440.00 MB
+    Delta Memory :                               61246.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                8
+    Run time :                                   495 sec.
+    Turnaround time :                            407 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <Logs/errors/time_all_solvers.err> for stderr output of this job.
+
